@@ -1,0 +1,104 @@
+.model-controls-panel {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  max-width: 300px;
+  z-index: 10;
+}
+
+.controls-section {
+  margin-bottom: 1rem;
+}
+
+.controls-section:last-child {
+  margin-bottom: 0;
+}
+
+.controls-section h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.model-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.model-selector button {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  min-height: 36px;
+  word-break: break-all;
+}
+
+.model-selector button:hover {
+  background: #f5f5f5;
+  border-color: #646cff;
+}
+
+.model-selector button.active {
+  background: #646cff;
+  color: #fff;
+  border-color: #646cff;
+}
+
+.transform-modes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.transform-modes button {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  min-height: 36px;
+}
+
+.transform-modes button:hover {
+  background: #f5f5f5;
+  border-color: #646cff;
+}
+
+.transform-modes button.active {
+  background: #646cff;
+  color: #fff;
+  border-color: #646cff;
+}
+
+@media (max-width: 768px) {
+  .model-controls-panel {
+    position: fixed;
+    top: auto;
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+    padding: 0.75rem;
+  }
+
+  .model-selector button,
+  .transform-modes button {
+    min-height: 44px; /* 移动端触摸优化 */
+  }
+}
