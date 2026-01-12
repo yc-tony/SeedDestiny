@@ -8,18 +8,18 @@ function ModelRenderer({ model, onRefReady }) {
   const { selectedModelId, selectModel } = useModelStore();
   const isSelected = selectedModelId === model.id;
 
+  // 使用 useMemo 克隆场景，避免每次渲染都克隆
+  const clonedScene = useMemo(() => {
+    if (!model.scene) return null;
+    return model.scene.clone();
+  }, [model.scene]);
+
   // 通知父组件 ref 已准备
   useEffect(() => {
     if (groupRef.current && onRefReady) {
       onRefReady(groupRef.current);
     }
   }, [onRefReady, clonedScene]);
-
-  // 使用 useMemo 克隆场景，避免每次渲染都克隆
-  const clonedScene = useMemo(() => {
-    if (!model.scene) return null;
-    return model.scene.clone();
-  }, [model.scene]);
 
   // 处理点击选择
   const handleClick = (e) => {
