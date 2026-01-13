@@ -8,6 +8,7 @@ export default function ModelControls() {
   const { models, selectedModelId, selectModel, removeModel, transformMode, setTransformMode, setModelMaterial, addMaterialToModel, removeMaterialFromModel } = useModelStore();
   const materialInputRef = useRef(null);
   const textureInputRef = useRef(null);
+  const folderInputRef = useRef(null);
 
 
   const selectedModel = models.find(m => m.id === selectedModelId);
@@ -57,17 +58,6 @@ export default function ModelControls() {
         }
       }
 
-      // 7. Fallback: 如果找不到匹配文件，且 URL 是 blob: 開頭，
-      // 嘗試移除 blob: 前綴，允許從服務器 (public folder) 加載
-      if (url.startsWith('blob:')) {
-        const serverUrl = url.replace(/^blob:/, '');
-        // 只在看起來像是路徑請求時 log warning
-        if (serverUrl.includes('/')) {
-          console.warn(`[Fallback] File not found in upload, redirecting to server: ${serverUrl}`);
-        }
-        return serverUrl;
-      }
-
       return url;
     });
     return manager;
@@ -101,6 +91,7 @@ export default function ModelControls() {
 
     // 建立 Blob URL 映射
     for (const file of files) {
+      console.log('Uploaded File:', file);
       filesMap.set(file.name, URL.createObjectURL(file));
       const ext = file.name.split('.').pop().toLowerCase();
       if (ext === 'mtl') {
@@ -230,19 +221,19 @@ export default function ModelControls() {
               {modelFormat === 'obj' && (
                 <>
                   <input
-                    ref={materialInputRef}
+                    ref={folderInputRef}
                     type="file"
-                    accept=".mtl,.png,.jpg,.jpeg"
+                    webkitdirectory=""
                     multiple
                     onChange={handleMaterialUpload}
                     style={{ display: 'none' }}
                   />
                   <button
-                    className="import-material-button"
-                    onClick={() => materialInputRef.current?.click()}
-                    style={{ width: '100%', marginBottom: '10px' }}
+                    className="import-folder-button"
+                    onClick={() => folderInputRef.current?.click()}
+                    style={{ width: '100%', marginBottom: '10px', backgroundColor: '#52c41a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', padding: '8px' }}
                   >
-                    📥 导入 MTL 材质
+                    📂 导入文件夹 (MTL + 贴图)
                   </button>
                 </>
               )}
