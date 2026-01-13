@@ -9,12 +9,12 @@ export function ModelProvider({ children }) {
   const [transformMode, setTransformMode] = useState('translate'); // 变换模式: translate, rotate, scale
 
   const addModel = (model) => {
-    // 确保新模型有默认的 scale 和 color
+    // 确保新模型有默认的 scale 和材質相關屬性
     const newModel = {
       ...model,
       scale: model.scale || [1, 1, 1],
-      color: model.color || '#ffffff',
-      originalMaterials: null, // 用于存储原始材质以支持颜色重置
+      materials: [], // { id, name, creator }
+      currentMaterialId: null,
     };
     setModels((prev) => [...prev, newModel]);
   };
@@ -58,10 +58,22 @@ export function ModelProvider({ children }) {
     );
   };
 
-  const updateModelColor = (id, color) => {
+  const addMaterialToModel = (modelId, material) => {
+    setModels((prev) =>
+      prev.map((model) => {
+        if (model.id !== modelId) return model;
+        const newMaterials = [...model.materials, material];
+        // 如果是第一個材質，自動設為當前材質
+        const newCurrentId = model.currentMaterialId || material.id;
+        return { ...model, materials: newMaterials, currentMaterialId: newCurrentId };
+      })
+    );
+  };
+
+  const setModelMaterial = (modelId, materialId) => {
     setModels((prev) =>
       prev.map((model) =>
-        model.id === id ? { ...model, color } : model
+        model.id === modelId ? { ...model, currentMaterialId: materialId } : model
       )
     );
   };
@@ -78,7 +90,8 @@ export function ModelProvider({ children }) {
     updateModelPosition,
     updateModelRotation,
     updateModelScale,
-    updateModelColor,
+    addMaterialToModel,
+    setModelMaterial,
     setTransformMode,
   };
 

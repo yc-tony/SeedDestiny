@@ -74,33 +74,35 @@ function ModelRenderer({ model, onRefReady }) {
     groupRef.current.scale.set(...(model.scale || [1, 1, 1]));
   }, [model.position, model.rotation, model.scale]);
 
-  // 應用顏色
+  // 應用材質
   useEffect(() => {
-    if (!clonedScene) return;
+    if (!clonedScene || !model.currentMaterialId || !model.materials) return;
 
-    const color = new THREE.Color(model.color || '#ffffff');
+    const materialObj = model.materials.find(m => m.id === model.currentMaterialId);
+    if (!materialObj || !materialObj.creator) return;
+
+    const creator = materialObj.creator;
 
     clonedScene.traverse((child) => {
       if (child.isMesh) {
-        // 處理材質是陣列的情況
-        const materials = Array.isArray(child.material) ? child.material : [child.material];
+         // 對於 OBJ 模型，material.name 通常對應 .mtl 中的材質名稱
+         const originalMaterials = Array.isArray(child.material) ? child.material : [child.material];
 
-        materials.forEach((mat) => {
-          // 克隆材質以避免影響原始資源或其他模型（雖然 clonedScene 已經克隆了 scene，但材質通常是共享的）
-          // 為了安全起見，我們在這裡不克隆材質，假設載入時已經是獨立的，或者使用者希望所有實例共享。
-          // 但通常我們希望每個模型實例的顏色獨立。
-          // 不過 Three.js 的 clone() 預設不會深拷貝材質。所以我們應該在這裡克隆材質。
+         const newMaterials = originalMaterials.map(origMat => {
+           // 嘗試從新的 MaterialCreator 創建同名材質
+           // 注意：create() 返回的材質每次都是新的實例，但如果已經創建過，內部可能會緩存（取決於 MTLLoader 實作）
+           // MTLLoader 的 MaterialCreator.create 會管理緩存
+           const newMat = creator.create(origMat.name);
+           if (newMat) {
+             return newMat;
+           }
+           return origMat;
+         });
 
-          // 但為了效能，我們只在第一次變色時克隆，或者假設只有一個模型實例。
-          // 簡單起見，直接修改。如果發現多個相同模型同時變色，再改成 clone material。
-
-          if (mat.color) {
-             mat.color.set(color);
-          }
-        });
+         child.material = Array.isArray(child.material) ? newMaterials : newMaterials[0];
       }
     });
-  }, [model.color, clonedScene]);
+  }, [model.currentMaterialId, model.materials, clonedScene]);
 
   if (!clonedScene) return null;
 

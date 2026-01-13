@@ -9,7 +9,7 @@ import './ModelLoader.css';
 
 export default function ModelLoader() {
   const fileInputRef = useRef(null);
-  const { models, addModel } = useModelStore();
+  const { models, addModel, selectedModelId, addMaterialToModel } = useModelStore();
   const MAX_MODELS = 2;
 
   const getFileExtension = (filename) => {
@@ -103,44 +103,33 @@ export default function ModelLoader() {
       }
     }
 
-    if (models.length + objectFiles.length > MAX_MODELS) {
-      alert(`最多只能加载 ${MAX_MODELS} 个模型文件`);
-      event.target.value = '';
-      return;
-    }
-
     const manager = createLoadingManager(filesMap);
 
-    for (const file of objectFiles) {
-      try {
-        const extension = getFileExtension(file.name);
-        let scene;
+    // 情況 1: 載入新模型
+    if (objectFiles.length > 0) {
+      if (models.length + objectFiles.length > MAX_MODELS) {
+        alert(`最多只能加载 ${MAX_MODELS} 个模型文件`);
+        event.target.value = '';
+        return;
+      }
 
-        if (extension === 'gltf' || extension === 'glb') {
-          scene = await loadGLTF(file, manager);
-        } else if (extension === 'obj') {
-          // 嘗試尋找對應的 .mtl 檔案
-          // 簡單匹配：假設 .mtl 檔名與 .obj 相同（只是副檔名不同），或者使用者只選了一個 .mtl
-          let materials = null;
-          let mtlFile = mtlFiles.get(file.name.replace('.obj', '.mtl'));
+      for (const file of objectFiles) {
+        try {
+          const extension = getFileExtension(file.name);
+          let scene;
 
-          // 如果找不到同名的，且只有一個 mtl，就用那個
-          if (!mtlFile && mtlFiles.size === 1) {
-            mtlFile = mtlFiles.values().next().value;
+          if (extension === 'gltf' || extension === 'glb') {
+            scene = await loadGLTF(file, manager);
+          } else if (extension === 'obj') {
+            // 現在流程改為先載入模型，不自動載入 MTL (除非使用者真的很堅持同時選了，這裡先不處理自動關聯，保持簡單)
+            scene = await loadOBJ(file, manager, null);
+          } else if (extension === 'stl') {
+            const geometry = await loadSTL(file, manager);
+            const material = new THREE.MeshStandardMaterial({ color: 0x888888 });
+            scene = new THREE.Mesh(geometry, material);
           }
 
-          if (mtlFile) {
-            materials = await loadMTL(mtlFile, manager);
-          }
-
-          scene = await loadOBJ(file, manager, materials);
-        } else if (extension === 'stl') {
-          const geometry = await loadSTL(file, manager);
-          const material = new THREE.MeshStandardMaterial({ color: 0x888888 });
-          scene = new THREE.Mesh(geometry, material);
-        }
-
-        if (scene) {
+          if (scene) {
             const modelId = `model-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             addModel({
               id: modelId,
@@ -149,17 +138,42 @@ export default function ModelLoader() {
               position: [0, 0, 0],
               rotation: [0, 0, 0],
               scale: [1, 1, 1],
-              color: '#ffffff'
+              materials: [],
+              currentMaterialId: null,
             });
+          }
+        } catch (error) {
+          console.error(`加载模型失败 ${file.name}:`, error);
+          alert(`加载模型失败: ${file.name}\n${error.message}`);
         }
-      } catch (error) {
-        console.error(`加载模型失败 ${file.name}:`, error);
-        alert(`加载模型失败: ${file.name}\n${error.message}`);
       }
     }
+    // 情況 2: 僅載入材質 (到選中模型)
+    else if (mtlFiles.size > 0) {
+      if (!selectedModelId) {
+        alert('请先选择一个模型来应用材质');
+        event.target.value = '';
+        return;
+      }
 
-    // 清理：釋放 createObjectURL 建立的資源 (這一步可以優化，例如在模型移除時釋放)
-    // 但為了簡單起見，這裡暫不釋放，因為 TextureLoader 可能會在渲染時才真正加載圖片
+      for (const [filename, file] of mtlFiles) {
+        try {
+          const materialCreator = await loadMTL(file, manager);
+          const materialId = `mat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+          addMaterialToModel(selectedModelId, {
+            id: materialId,
+            name: filename,
+            creator: materialCreator
+          });
+
+          alert(`材质 ${filename} 已加载`);
+        } catch (error) {
+           console.error(`加载材质失败 ${filename}:`, error);
+           alert(`加载材质失败: ${filename}`);
+        }
+      }
+    }
 
     event.target.value = '';
   };
