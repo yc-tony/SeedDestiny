@@ -2,7 +2,9 @@ import { useModelStore } from '../../store/modelStore';
 import './ModelControls.css';
 
 export default function ModelControls() {
-  const { models, selectedModelId, selectModel, transformMode, setTransformMode } = useModelStore();
+  const { models, selectedModelId, selectModel, transformMode, setTransformMode, updateModelColor } = useModelStore();
+
+  const selectedModel = models.find(m => m.id === selectedModelId);
 
   return (
     models.length > 0 && (
@@ -23,23 +25,44 @@ export default function ModelControls() {
         </div>
 
         {selectedModelId && (
-          <div className="controls-section">
-            <h3>变换模式</h3>
-            <div className="transform-modes">
-              <button
-                onClick={() => setTransformMode('translate')}
-                className={transformMode === 'translate' ? 'active' : ''}
-              >
-                移动
-              </button>
-              <button
-                onClick={() => setTransformMode('rotate')}
-                className={transformMode === 'rotate' ? 'active' : ''}
-              >
-                旋转
-              </button>
+          <>
+            <div className="controls-section">
+              <h3>变换模式</h3>
+              <div className="transform-modes">
+                <button
+                  onClick={() => setTransformMode('translate')}
+                  className={transformMode === 'translate' ? 'active' : ''}
+                >
+                  移动
+                </button>
+                <button
+                  onClick={() => setTransformMode('rotate')}
+                  className={transformMode === 'rotate' ? 'active' : ''}
+                >
+                  旋转
+                </button>
+                <button
+                  onClick={() => setTransformMode('scale')}
+                  className={transformMode === 'scale' ? 'active' : ''}
+                >
+                  缩放
+                </button>
+              </div>
             </div>
-          </div>
+
+            <div className="controls-section">
+              <h3>材质颜色</h3>
+              <div className="color-picker-container">
+                <input
+                  type="color"
+                  value={selectedModel?.color || '#ffffff'}
+                  onChange={(e) => updateModelColor(selectedModelId, e.target.value)}
+                  className="color-picker"
+                />
+                <span className="color-value">{selectedModel?.color || '#ffffff'}</span>
+              </div>
+            </div>
+          </>
         )}
       </div>
     )

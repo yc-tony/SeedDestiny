@@ -6,10 +6,17 @@ export function ModelProvider({ children }) {
   const [models, setModels] = useState([]); // 存储加载的模型
   const [selectedModelId, setSelectedModelId] = useState(null); // 选中的模型ID
   const [cameraLocked, setCameraLocked] = useState(false); // 相机锁定状态
-  const [transformMode, setTransformMode] = useState('translate'); // 变换模式: translate, rotate
+  const [transformMode, setTransformMode] = useState('translate'); // 变换模式: translate, rotate, scale
 
   const addModel = (model) => {
-    setModels((prev) => [...prev, model]);
+    // 确保新模型有默认的 scale 和 color
+    const newModel = {
+      ...model,
+      scale: model.scale || [1, 1, 1],
+      color: model.color || '#ffffff',
+      originalMaterials: null, // 用于存储原始材质以支持颜色重置
+    };
+    setModels((prev) => [...prev, newModel]);
   };
 
   const removeModel = (id) => {
@@ -43,6 +50,22 @@ export function ModelProvider({ children }) {
     );
   };
 
+  const updateModelScale = (id, scale) => {
+    setModels((prev) =>
+      prev.map((model) =>
+        model.id === id ? { ...model, scale } : model
+      )
+    );
+  };
+
+  const updateModelColor = (id, color) => {
+    setModels((prev) =>
+      prev.map((model) =>
+        model.id === id ? { ...model, color } : model
+      )
+    );
+  };
+
   const value = {
     models,
     selectedModelId,
@@ -54,6 +77,8 @@ export function ModelProvider({ children }) {
     toggleCameraLock,
     updateModelPosition,
     updateModelRotation,
+    updateModelScale,
+    updateModelColor,
     setTransformMode,
   };
 

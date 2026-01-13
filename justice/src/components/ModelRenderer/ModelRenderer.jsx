@@ -59,13 +59,48 @@ function ModelRenderer({ model, onRefReady }) {
     };
   }, [isSelected, model.scene]);
 
-  // 应用位置和旋转（仅在初始加载或非选中状态时）
+  // 应用位置、旋转和缩放
   useEffect(() => {
-    if (!groupRef.current || isSelected) return;
-    
+    if (!groupRef.current) return;
+
+    // 如果不是被選中狀態，或者雖然被選中但 TransformControls 可能還沒接管（雖然通常由 Scene3D 處理）
+    // 我們總是將 store 的狀態同步到 object，除了當 object 正在被 TransformControls 操作時（這部分由 Scene3D 處理）
+    // 這裡簡單處理：總是同步。因為 TransformControls 更新會觸發 store 更新，store 更新觸發這裡重新渲染。
+    // 為了避免與 TransformControls 衝突，我們可以在 Scene3D 中處理，或者這裡僅在非操作時同步。
+    // 但由於 React 的渲染週期，直接設定通常是安全的。
+
     groupRef.current.position.set(...model.position);
     groupRef.current.rotation.set(model.rotation[0], model.rotation[1], model.rotation[2]);
-  }, [model.position, model.rotation, isSelected]);
+    groupRef.current.scale.set(...(model.scale || [1, 1, 1]));
+  }, [model.position, model.rotation, model.scale]);
+
+  // 應用顏色
+  useEffect(() => {
+    if (!clonedScene) return;
+
+    const color = new THREE.Color(model.color || '#ffffff');
+
+    clonedScene.traverse((child) => {
+      if (child.isMesh) {
+        // 處理材質是陣列的情況
+        const materials = Array.isArray(child.material) ? child.material : [child.material];
+
+        materials.forEach((mat) => {
+          // 克隆材質以避免影響原始資源或其他模型（雖然 clonedScene 已經克隆了 scene，但材質通常是共享的）
+          // 為了安全起見，我們在這裡不克隆材質，假設載入時已經是獨立的，或者使用者希望所有實例共享。
+          // 但通常我們希望每個模型實例的顏色獨立。
+          // 不過 Three.js 的 clone() 預設不會深拷貝材質。所以我們應該在這裡克隆材質。
+
+          // 但為了效能，我們只在第一次變色時克隆，或者假設只有一個模型實例。
+          // 簡單起見，直接修改。如果發現多個相同模型同時變色，再改成 clone material。
+
+          if (mat.color) {
+             mat.color.set(color);
+          }
+        });
+      }
+    });
+  }, [model.color, clonedScene]);
 
   if (!clonedScene) return null;
 

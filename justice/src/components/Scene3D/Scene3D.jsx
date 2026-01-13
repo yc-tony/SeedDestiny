@@ -6,7 +6,7 @@ import ModelRenderer from '../ModelRenderer';
 import './Scene3D.css';
 
 function SceneContent() {
-  const { models, cameraLocked, selectedModelId, updateModelPosition, updateModelRotation, transformMode } = useModelStore();
+  const { models, cameraLocked, selectedModelId, updateModelPosition, updateModelRotation, updateModelScale, transformMode } = useModelStore();
   const [modelRefs, setModelRefs] = useState({});
   const transformControlsRef = useRef();
 
@@ -23,8 +23,11 @@ function SceneContent() {
     if (object && selectedModelId) {
       const position = object.position.toArray();
       const rotation = [object.rotation.x, object.rotation.y, object.rotation.z];
+      const scale = object.scale.toArray();
+
       updateModelPosition(selectedModelId, position);
       updateModelRotation(selectedModelId, rotation);
+      updateModelScale(selectedModelId, scale);
     }
   };
 
