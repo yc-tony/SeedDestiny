@@ -1,24 +1,65 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useModelStore } from '../../store/modelStore';
 import * as THREE from 'three';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 import './ModelControls.css';
 
 export default function ModelControls() {
-  const { models, selectedModelId, selectModel, removeModel, transformMode, setTransformMode, setModelMaterial, addMaterialToModel } = useModelStore();
+  const { models, selectedModelId, selectModel, removeModel, transformMode, setTransformMode, setModelMaterial, addMaterialToModel, removeMaterialFromModel } = useModelStore();
   const materialInputRef = useRef(null);
+  const textureInputRef = useRef(null);
+
 
   const selectedModel = models.find(m => m.id === selectedModelId);
+
+  // 判斷模型格式
+  const getModelFormat = (modelName) => {
+    if (!modelName) return 'unknown';
+    const ext = modelName.split('.').pop().toLowerCase();
+    return ext;
+  };
+
+  const modelFormat = selectedModel ? getModelFormat(selectedModel.name) : 'unknown';
 
   // 創建 LoadingManager 來處理 Blob URL 映射
   const createLoadingManager = (filesMap) => {
     const manager = new THREE.LoadingManager();
     manager.setURLModifier((url) => {
-      const normalizedUrl = url.replace(/^(\.?\/)+/, '');
-      const filename = normalizedUrl.split('/').pop();
+      // 1. 將所有反斜線轉換為斜線 (處理 Windows 路徑)
+      let normalizedUrl = url.replace(/\\/g, '/');
+
+      // 2. 移除 query string
+      normalizedUrl = normalizedUrl.split('?')[0];
+
+      // 3. 獲取文件名 (取最後一段)
+      const parts = normalizedUrl.split('/');
+      const filename = parts.pop();
+
+      // 4. 嘗試解碼文件名 (處理空格為 %20 的情況)
+      let decodedFilename = filename;
+      try {
+        decodedFilename = decodeURIComponent(filename);
+      } catch (e) {
+        console.warn('Filename decode failed:', filename);
+      }
+
+      // 5. 檢查是否有匹配的文件 (優先精確匹配)
+      if (filesMap.has(decodedFilename)) {
+        return filesMap.get(decodedFilename);
+      }
       if (filesMap.has(filename)) {
         return filesMap.get(filename);
       }
+
+      // 6. 嘗試忽略大小寫匹配 (容錯處理)
+      const lowerDecoded = decodedFilename.toLowerCase();
+      for (const [key, value] of filesMap) {
+        if (key.toLowerCase() === lowerDecoded) {
+          console.log(`[Auto-Match] Maps ${decodedFilename} to ${key}`);
+          return value;
+        }
+      }
+
       return url;
     });
     return manager;
@@ -71,11 +112,54 @@ export default function ModelControls() {
         addMaterialToModel(selectedModelId, {
           id: materialId,
           name: file.name,
+          type: 'mtl',
           creator: materialCreator
         });
       } catch (error) {
         console.error(`加载材质失败 ${file.name}:`, error);
         alert(`加载材质失败: ${file.name}`);
+      }
+    }
+
+    event.target.value = '';
+  };
+
+
+
+  // 處理紋理上傳（適用於 GLTF/GLB 和其他格式）
+  const handleTextureUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
+
+    if (!selectedModelId) {
+      alert('请先选择一个模型');
+      return;
+    }
+
+    for (const file of files) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!['png', 'jpg', 'jpeg'].includes(ext)) {
+        alert(`不支持的图片格式: ${file.name}`);
+        continue;
+      }
+
+      try {
+        const textureLoader = new THREE.TextureLoader();
+        const blobUrl = URL.createObjectURL(file);
+
+        textureLoader.load(blobUrl, (texture) => {
+          const materialId = `mat-tex-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+          addMaterialToModel(selectedModelId, {
+            id: materialId,
+            name: file.name,
+            type: 'texture',
+            texture: texture
+          });
+        });
+      } catch (error) {
+        console.error(`加载纹理失败 ${file.name}:`, error);
+        alert(`加载纹理失败: ${file.name}`);
       }
     }
 
@@ -128,32 +212,112 @@ export default function ModelControls() {
 
             <div className="controls-section">
               <h3>材质管理</h3>
-              <input
-                ref={materialInputRef}
-                type="file"
-                accept=".mtl,.png,.jpg,.jpeg"
-                multiple
-                onChange={handleMaterialUpload}
-                style={{ display: 'none' }}
-              />
-              <button
-                className="import-material-button"
-                onClick={() => materialInputRef.current?.click()}
-                style={{ width: '100%', marginBottom: '10px' }}
-              >
-                📥 导入材质 (.mtl + textures)
-              </button>
 
+              {/* OBJ 格式：支持 MTL 文件 */}
+              {modelFormat === 'obj' && (
+                <>
+                  <input
+                    ref={materialInputRef}
+                    type="file"
+                    accept=".mtl,.png,.jpg,.jpeg"
+                    multiple
+                    onChange={handleMaterialUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    className="import-material-button"
+                    onClick={() => materialInputRef.current?.click()}
+                    style={{ width: '100%', marginBottom: '10px' }}
+                  >
+                    📥 导入 MTL 材质
+                  </button>
+                </>
+              )}
+
+              {/* 通用：紋理貼圖上傳（適用於 GLTF, GLB 等） */}
+              {['gltf', 'glb', 'stl'].includes(modelFormat) && (
+                <>
+                  <input
+                    ref={textureInputRef}
+                    type="file"
+                    accept=".png,.jpg,.jpeg"
+                    multiple
+                    onChange={handleTextureUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    className="import-texture-button"
+                    onClick={() => textureInputRef.current?.click()}
+                    style={{ width: '100%', marginBottom: '10px' }}
+                  >
+                    🖼️ 导入纹理贴图
+                  </button>
+                </>
+              )}
+
+
+
+              {/* 已導入材質列表 */}
               {selectedModel.materials && selectedModel.materials.length > 0 ? (
                 <div className="material-list">
                   {selectedModel.materials.map((mat) => (
-                    <button
+                    <div
                       key={mat.id}
-                      onClick={() => setModelMaterial(selectedModelId, mat.id)}
-                      className={`material-item ${selectedModel.currentMaterialId === mat.id ? 'active' : ''}`}
+                      className={`material-item-wrapper ${selectedModel.currentMaterialId === mat.id ? 'active' : ''}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        marginBottom: '5px',
+                        backgroundColor: selectedModel.currentMaterialId === mat.id ? '#e6f7ff' : '#f5f5f5',
+                        borderRadius: '4px',
+                        padding: '4px',
+                        border: selectedModel.currentMaterialId === mat.id ? '1px solid #1890ff' : '1px solid #d9d9d9'
+                      }}
                     >
-                      {mat.name}
-                    </button>
+                      <button
+                        onClick={() => setModelMaterial(selectedModelId, mat.id)}
+                        className={`material-item`}
+                        style={{
+                          flex: 1,
+                          textAlign: 'left',
+                          border: 'none',
+                          background: 'none',
+                          cursor: 'pointer',
+                          padding: '4px 8px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                        title={mat.name}
+                      >
+                        {mat.type === 'mtl' && '📄 '}
+                        {mat.type === 'texture' && '🖼️ '}
+                        {mat.name}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`确定要移除材质 "${mat.name}" 吗?`)) {
+                            removeMaterialFromModel(selectedModelId, mat.id);
+                          }
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#ff4d4f',
+                          padding: '4px 8px',
+                          fontSize: '1.1em',
+                          opacity: 0.7
+                        }}
+                        className="remove-material-btn"
+                        title="移除材质"
+                        onMouseEnter={(e) => e.target.style.opacity = 1}
+                        onMouseLeave={(e) => e.target.style.opacity = 0.7}
+                      >
+                        ✕
+                      </button>
+                    </div>
                   ))}
                 </div>
               ) : (

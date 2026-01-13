@@ -12,7 +12,7 @@ function ModelRenderer({ model, onRefReady }) {
   const clonedScene = useMemo(() => {
     if (!model.scene) return null;
     return model.scene.clone();
-  }, [model.scene]);
+  }, [model.scene, model.currentMaterialId]);
 
   // 通知父组件 ref 已准备
   useEffect(() => {
@@ -79,29 +79,104 @@ function ModelRenderer({ model, onRefReady }) {
     if (!clonedScene || !model.currentMaterialId || !model.materials) return;
 
     const materialObj = model.materials.find(m => m.id === model.currentMaterialId);
-    if (!materialObj || !materialObj.creator) return;
+    if (!materialObj) return;
 
-    const creator = materialObj.creator;
+    console.log('Applying material:', materialObj);
 
     clonedScene.traverse((child) => {
       if (child.isMesh) {
-         // 對於 OBJ 模型，material.name 通常對應 .mtl 中的材質名稱
-         const originalMaterials = Array.isArray(child.material) ? child.material : [child.material];
+        // 根據材質類型應用不同的處理
+        switch (materialObj.type) {
+          case 'mtl': {
+            // MTL 材質（OBJ 專用）
+            if (!materialObj.creator) return;
 
-         const newMaterials = originalMaterials.map(origMat => {
-           // 嘗試從新的 MaterialCreator 創建同名材質
-           // 注意：create() 返回的材質每次都是新的實例，但如果已經創建過，內部可能會緩存（取決於 MTLLoader 實作）
-           // MTLLoader 的 MaterialCreator.create 會管理緩存
-           const newMat = creator.create(origMat.name);
-           if (newMat) {
-             return newMat;
-           }
-           return origMat;
-         });
+            const creator = materialObj.creator;
+            if (creator.preload) {
+              creator.preload();
+            }
 
-         child.material = Array.isArray(child.material) ? newMaterials : newMaterials[0];
+            const availableMaterials = creator.materials || {};
+            const materialNames = Object.keys(availableMaterials);
+
+            const originalMaterials = Array.isArray(child.material) ? child.material : [child.material];
+
+            const newMaterials = originalMaterials.map(origMat => {
+              // 嘗試直接從 materials map 獲取
+              if (origMat.name && availableMaterials[origMat.name]) {
+                console.log(`Applying MTL material: ${origMat.name}`);
+                return availableMaterials[origMat.name];
+              }
+
+              // 嘗試用 create 方法
+              if (origMat.name) {
+                const newMat = creator.create(origMat.name);
+                if (newMat) {
+                  console.log(`Created MTL material: ${origMat.name}`);
+                  return newMat;
+                }
+              }
+
+              // 如果只有一個材質，直接使用
+              if (materialNames.length === 1) {
+                console.log(`Using single MTL material: ${materialNames[0]}`);
+                return availableMaterials[materialNames[0]];
+              }
+
+              return origMat;
+            });
+
+            child.material = Array.isArray(child.material) ? newMaterials : newMaterials[0];
+            break;
+          }
+
+          case 'color': {
+            // 顏色材質（適用於所有格式）
+            const color = new THREE.Color(materialObj.color);
+            const newMaterial = new THREE.MeshStandardMaterial({
+              color: color,
+              metalness: 0.3,
+              roughness: 0.7
+            });
+
+            child.material = newMaterial;
+            console.log(`Applied color material: ${materialObj.color}`);
+            break;
+          }
+
+          case 'texture': {
+            // 紋理材質（適用於 GLTF, GLB, STL 等）
+            if (!materialObj.texture) return;
+
+            const newMaterial = new THREE.MeshStandardMaterial({
+              map: materialObj.texture,
+              metalness: 0.3,
+              roughness: 0.7
+            });
+
+            child.material = newMaterial;
+            console.log(`Applied texture material: ${materialObj.name}`);
+            break;
+          }
+
+          default:
+            console.warn(`Unknown material type: ${materialObj.type}`);
+        }
+
+        // 強制更新材質
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach(mat => {
+              if (mat.needsUpdate !== undefined) mat.needsUpdate = true;
+            });
+          } else {
+            if (child.material.needsUpdate !== undefined) child.material.needsUpdate = true;
+          }
+        }
       }
     });
+
+    console.log('Material application completed');
   }, [model.currentMaterialId, model.materials, clonedScene]);
 
   if (!clonedScene) return null;

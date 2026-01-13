@@ -78,6 +78,28 @@ export function ModelProvider({ children }) {
     );
   };
 
+  const removeMaterialFromModel = (modelId, materialId) => {
+    setModels((prev) =>
+      prev.map((model) => {
+        if (model.id !== modelId) return model;
+
+        const newMaterials = model.materials.filter((m) => m.id !== materialId);
+        let newCurrentId = model.currentMaterialId;
+
+        // 如果刪除的是當前材質，重置當前材質
+        if (model.currentMaterialId === materialId) {
+          newCurrentId = newMaterials.length > 0 ? newMaterials[newMaterials.length - 1].id : null;
+        }
+
+        return {
+          ...model,
+          materials: newMaterials,
+          currentMaterialId: newCurrentId
+        };
+      })
+    );
+  };
+
   const value = {
     models,
     selectedModelId,
@@ -92,6 +114,7 @@ export function ModelProvider({ children }) {
     updateModelScale,
     addMaterialToModel,
     setModelMaterial,
+    removeMaterialFromModel,
     setTransformMode,
   };
 
