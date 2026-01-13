@@ -25,39 +25,47 @@ export default function ModelControls() {
   const createLoadingManager = (filesMap) => {
     const manager = new THREE.LoadingManager();
     manager.setURLModifier((url) => {
-      // 1. 將所有反斜線轉換為斜線 (處理 Windows 路徑)
-      let normalizedUrl = url.replace(/\\/g, '/');
+      // 1. 嘗試解碼整個 URL (處理 %5C, %20 等)
+      let normalizedUrl = url;
+      try {
+        normalizedUrl = decodeURIComponent(url);
+      } catch (e) {
+        console.warn('URL decode failed:', url);
+      }
 
-      // 2. 移除 query string
+      // 2. 將所有反斜線轉換為斜線 (處理 Windows 路徑)
+      normalizedUrl = normalizedUrl.replace(/\\/g, '/');
+
+      // 3. 移除 query string
       normalizedUrl = normalizedUrl.split('?')[0];
 
-      // 3. 獲取文件名 (取最後一段)
+      // 4. 獲取文件名 (取最後一段)
       const parts = normalizedUrl.split('/');
       const filename = parts.pop();
 
-      // 4. 嘗試解碼文件名 (處理空格為 %20 的情況)
-      let decodedFilename = filename;
-      try {
-        decodedFilename = decodeURIComponent(filename);
-      } catch (e) {
-        console.warn('Filename decode failed:', filename);
-      }
-
       // 5. 檢查是否有匹配的文件 (優先精確匹配)
-      if (filesMap.has(decodedFilename)) {
-        return filesMap.get(decodedFilename);
-      }
       if (filesMap.has(filename)) {
         return filesMap.get(filename);
       }
 
       // 6. 嘗試忽略大小寫匹配 (容錯處理)
-      const lowerDecoded = decodedFilename.toLowerCase();
+      const lowerFilename = filename.toLowerCase();
       for (const [key, value] of filesMap) {
-        if (key.toLowerCase() === lowerDecoded) {
-          console.log(`[Auto-Match] Maps ${decodedFilename} to ${key}`);
+        if (key.toLowerCase() === lowerFilename) {
+          console.log(`[Auto-Match] Maps ${filename} to ${key}`);
           return value;
         }
+      }
+
+      // 7. Fallback: 如果找不到匹配文件，且 URL 是 blob: 開頭，
+      // 嘗試移除 blob: 前綴，允許從服務器 (public folder) 加載
+      if (url.startsWith('blob:')) {
+        const serverUrl = url.replace(/^blob:/, '');
+        // 只在看起來像是路徑請求時 log warning
+        if (serverUrl.includes('/')) {
+          console.warn(`[Fallback] File not found in upload, redirecting to server: ${serverUrl}`);
+        }
+        return serverUrl;
       }
 
       return url;
@@ -68,7 +76,10 @@ export default function ModelControls() {
   const loadMTL = (file, manager) => {
     return new Promise((resolve, reject) => {
       const loader = new MTLLoader(manager);
+      console.log('Loading MTL:', file.name);
+      // loader.setPath(file.path);
       const blobUrl = URL.createObjectURL(file);
+      console.log('Loading MTL blob:', blobUrl);
       loader.load(blobUrl, (materials) => {
         materials.preload();
         resolve(materials);
@@ -101,6 +112,8 @@ export default function ModelControls() {
       alert('未找到 .mtl 文件');
       return;
     }
+
+    console.log('MTL Files Map:', filesMap);
 
     const manager = createLoadingManager(filesMap);
 
