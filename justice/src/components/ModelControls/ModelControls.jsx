@@ -82,7 +82,7 @@ export default function ModelControls() {
     if (files.length === 0) return;
 
     if (!selectedModelId) {
-      alert('请先选择一个模型');
+      alert('需匯入一個模型');
       return;
     }
 
@@ -104,8 +104,6 @@ export default function ModelControls() {
       return;
     }
 
-    console.log('MTL Files Map:', filesMap);
-
     const manager = createLoadingManager(filesMap);
 
     for (const file of mtlFiles) {
@@ -120,8 +118,8 @@ export default function ModelControls() {
           creator: materialCreator
         });
       } catch (error) {
-        console.error(`加载材质失败 ${file.name}:`, error);
-        alert(`加载材质失败: ${file.name}`);
+        console.error(`材質匯入失敗 ${file.name}:`, error);
+        alert(`材質匯入失敗: ${file.name}`);
       }
     }
 
@@ -136,14 +134,14 @@ export default function ModelControls() {
     if (files.length === 0) return;
 
     if (!selectedModelId) {
-      alert('请先选择一个模型');
+      alert('需匯入一個模型');
       return;
     }
 
     for (const file of files) {
       const ext = file.name.split('.').pop().toLowerCase();
       if (!['png', 'jpg', 'jpeg'].includes(ext)) {
-        alert(`不支持的图片格式: ${file.name}`);
+        alert(`圖片格式不支援: ${file.name}`);
         continue;
       }
 
@@ -162,8 +160,8 @@ export default function ModelControls() {
           });
         });
       } catch (error) {
-        console.error(`加载纹理失败 ${file.name}:`, error);
-        alert(`加载纹理失败: ${file.name}`);
+        console.error(`材質匯入失敗 ${file.name}:`, error);
+        alert(`材質匯入失敗: ${file.name}`);
       }
     }
 
@@ -174,7 +172,7 @@ export default function ModelControls() {
     models.length > 0 && (
       <div className="model-controls-panel">
         <div className="controls-section">
-          <h3>选择模型</h3>
+          <h3>已匯入模型</h3>
           <div className="model-selector">
             {models.map((model) => (
               <button
@@ -191,31 +189,31 @@ export default function ModelControls() {
         {selectedModelId && (
           <>
             <div className="controls-section">
-              <h3>变换模式</h3>
+              <h3>操作</h3>
               <div className="transform-modes">
                 <button
                   onClick={() => setTransformMode('translate')}
                   className={transformMode === 'translate' ? 'active' : ''}
                 >
-                  移动
+                  移動
                 </button>
                 <button
                   onClick={() => setTransformMode('rotate')}
                   className={transformMode === 'rotate' ? 'active' : ''}
                 >
-                  旋转
+                  旋轉
                 </button>
                 <button
                   onClick={() => setTransformMode('scale')}
                   className={transformMode === 'scale' ? 'active' : ''}
                 >
-                  缩放
+                  縮放
                 </button>
               </div>
             </div>
 
             <div className="controls-section">
-              <h3>材质管理</h3>
+              <h3>材質</h3>
 
               {/* OBJ 格式：支持 MTL 文件 */}
               {modelFormat === 'obj' && (
@@ -233,7 +231,7 @@ export default function ModelControls() {
                     onClick={() => folderInputRef.current?.click()}
                     style={{ width: '100%', marginBottom: '10px', backgroundColor: '#52c41a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', padding: '8px' }}
                   >
-                    📂 导入文件夹 (MTL + 贴图)
+                    匯入含.MLT目錄
                   </button>
                 </>
               )}
@@ -254,7 +252,7 @@ export default function ModelControls() {
                     onClick={() => textureInputRef.current?.click()}
                     style={{ width: '100%', marginBottom: '10px' }}
                   >
-                    🖼️ 导入纹理贴图
+                    匯入材質貼圖
                   </button>
                 </>
               )}
@@ -301,7 +299,7 @@ export default function ModelControls() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (window.confirm(`确定要移除材质 "${mat.name}" 吗?`)) {
+                          if (window.confirm(`確認移除材質 "${mat.name}" 吗?`)) {
                             removeMaterialFromModel(selectedModelId, mat.id);
                           }
                         }}
@@ -315,7 +313,7 @@ export default function ModelControls() {
                           opacity: 0.7
                         }}
                         className="remove-material-btn"
-                        title="移除材质"
+                        title="移除材質"
                         onMouseEnter={(e) => e.target.style.opacity = 1}
                         onMouseLeave={(e) => e.target.style.opacity = 0.7}
                       >
@@ -325,7 +323,7 @@ export default function ModelControls() {
                   ))}
                 </div>
               ) : (
-                <div style={{ color: '#666', fontStyle: 'italic', fontSize: '0.9em' }}>暂无已导入材质</div>
+                <div style={{ color: '#666', fontStyle: 'italic', fontSize: '0.9em' }}>請匯入材質</div>
               )}
             </div>
 

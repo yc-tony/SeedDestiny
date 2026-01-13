@@ -8,9 +8,9 @@ export default function CameraLockButton() {
     <button
       onClick={toggleCameraLock}
       className={`camera-lock-button ${cameraLocked ? 'locked' : ''}`}
-      aria-label={cameraLocked ? '解锁相机' : '锁定相机'}
+      aria-label={cameraLocked ? '視角已鎖定' : '可移動視角'}
     >
-      {cameraLocked ? '🔒 解锁视角' : '🔓 锁定视角'}
+      {cameraLocked ? '🔒 視角已鎖定' : '🔓 可移動視角'}
     </button>
   );
 }
