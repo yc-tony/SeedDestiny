@@ -1,7 +1,7 @@
 package com.seeddestiny.freedom.oauth.config
 
 import com.seeddestiny.freedom.account.repository.AccountRepository
-import com.seeddestiny.freedom.account.repository.ApplicationRepository
+import com.seeddestiny.freedom.application.repository.ApplicationRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext
@@ -23,16 +23,15 @@ class OAuth2TokenCustomizerConfig(
                 val account = accountRepository.findByUsername(username)
                 if (account != null) {
                     // Add account ID to JWT claims
-                    context.claims.claim("accountId", account.id.toString())
+                    context.claims.claim("accountId", account.id)
                 }
             }
 
             // Get application ID from registered client
             val registeredClient = context.registeredClient
-            val application = applicationRepository.findByApplicationId(registeredClient.clientId)
-            if (application != null) {
+            registeredClient?.clientId?.let {
                 // Add application ID to JWT claims
-                context.claims.claim("applicationId", application.id.toString())
+                context.claims.claim("applicationId", it)
             }
         }
     }

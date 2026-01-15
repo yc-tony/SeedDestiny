@@ -2,16 +2,19 @@ package com.seeddestiny.freedom.account.model
 
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.GenericGenerator
 import org.hibernate.annotations.UpdateTimestamp
+import java.io.Serializable
 import java.time.LocalDateTime
-import java.util.UUID
 
 @Entity
 @Table(name = "account")
-class Account(
+data class Account(
     @Id
-    @Column(name = "id", columnDefinition = "BINARY(16)")
-    var id: UUID = UUID.randomUUID(),
+    @GenericGenerator(name = "system-uuid", strategy = "uuid2")
+    @GeneratedValue(generator = "system-uuid")
+    @Column(name = "account_id", nullable = false, unique = true, length = 100)
+    var id: String? = null,
 
     @Column(name = "username", nullable = false, unique = true, length = 100)
     var username: String,
@@ -20,10 +23,13 @@ class Account(
     var password: String,
 
     @Column(name = "phone", nullable = true, length = 20)
-    var phone: String?,
+    var phone: String? = null,
 
     @Column(name = "nickname", nullable = true, length = 100)
-    var nickname: String?,
+    var nickname: String? = null,
+
+    @Column(name = "email", nullable = true, length = 255)
+    var email: String? = null,
 
     @CreationTimestamp
     @Column(name = "created_date", nullable = false, updatable = false)
@@ -32,4 +38,4 @@ class Account(
     @UpdateTimestamp
     @Column(name = "updated_date", nullable = false)
     var updatedDate: LocalDateTime? = null
-)
+) : Serializable
