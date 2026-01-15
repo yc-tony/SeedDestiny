@@ -1,4 +1,4 @@
-package com.seeddestiny.freedom.oauth
+package com.seeddestiny.freedom.oauth.model
 
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.AuthorizationGrantType

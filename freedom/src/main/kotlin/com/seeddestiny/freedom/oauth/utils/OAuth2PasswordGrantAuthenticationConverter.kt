@@ -1,5 +1,6 @@
-package com.seeddestiny.freedom.oauth
+package com.seeddestiny.freedom.oauth.utils
 
+import com.seeddestiny.freedom.oauth.model.OAuth2PasswordGrantAuthenticationToken
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames

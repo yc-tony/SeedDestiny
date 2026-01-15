@@ -1,6 +1,6 @@
 package com.seeddestiny.freedom.util
 
-import com.seeddestiny.freedom.config.JwtProperties
+import com.seeddestiny.freedom.oauth.config.JwtProperties
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Component

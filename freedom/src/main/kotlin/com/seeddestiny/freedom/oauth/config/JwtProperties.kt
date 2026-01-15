@@ -1,4 +1,4 @@
-package com.seeddestiny.freedom.config
+package com.seeddestiny.freedom.oauth.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
