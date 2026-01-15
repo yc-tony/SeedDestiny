@@ -1,6 +1,9 @@
-package com.seeddestiny.freedom.entity
+package com.seeddestiny.freedom.account.model
 
 import jakarta.persistence.*
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
@@ -19,9 +22,11 @@ class Application(
     @Column(name = "oauth_scopes", nullable = false, length = 500)
     var oauthScopes: String, // Comma-separated scopes
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    var createdAt: Long = System.currentTimeMillis(),
+    @CreationTimestamp
+    @Column(name = "created_date", nullable = false, updatable = false)
+    var createdDate: LocalDateTime? = null,
 
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: Long = System.currentTimeMillis()
+    @UpdateTimestamp
+    @Column(name = "updated_date", nullable = false)
+    var updatedDate: LocalDateTime? = null
 )

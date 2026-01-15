@@ -1,4 +1,4 @@
-package com.seeddestiny.freedom.dto
+package com.seeddestiny.freedom.http.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

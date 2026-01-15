@@ -1,8 +1,7 @@
 package com.seeddestiny.freedom.controller
 
-import com.seeddestiny.freedom.dto.ErrorResponse
-import com.seeddestiny.freedom.dto.TokenRequest
-import com.seeddestiny.freedom.dto.TokenResponse
+import com.seeddestiny.freedom.http.model.ErrorResponse
+import com.seeddestiny.freedom.http.model.TokenRequest
 import com.seeddestiny.freedom.service.OAuth2Service
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

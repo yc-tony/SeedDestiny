@@ -1,6 +1,6 @@
-package com.seeddestiny.freedom.repository
+package com.seeddestiny.freedom.account.repository
 
-import com.seeddestiny.freedom.entity.Account
+import com.seeddestiny.freedom.account.model.Account
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.UUID

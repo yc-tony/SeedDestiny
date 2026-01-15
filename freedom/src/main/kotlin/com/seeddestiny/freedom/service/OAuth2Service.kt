@@ -1,10 +1,10 @@
 package com.seeddestiny.freedom.service
 
 import com.seeddestiny.freedom.config.JwtProperties
-import com.seeddestiny.freedom.dto.TokenRequest
-import com.seeddestiny.freedom.dto.TokenResponse
-import com.seeddestiny.freedom.repository.AccountRepository
-import com.seeddestiny.freedom.repository.ApplicationRepository
+import com.seeddestiny.freedom.http.model.TokenRequest
+import com.seeddestiny.freedom.http.model.TokenResponse
+import com.seeddestiny.freedom.account.repository.AccountRepository
+import com.seeddestiny.freedom.account.repository.ApplicationRepository
 import com.seeddestiny.freedom.util.JwtUtil
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
