@@ -18,3 +18,8 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
+
+# JWT Configuration
+jwt:
+  secret: kira-yamato
+  expiration: 3600  # 1 hour in milliseconds
