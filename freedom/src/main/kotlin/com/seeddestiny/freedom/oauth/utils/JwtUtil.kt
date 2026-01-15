@@ -1,4 +1,4 @@
-package com.seeddestiny.freedom.util
+package com.seeddestiny.freedom.oauth.utils
 
 import com.seeddestiny.freedom.oauth.config.JwtProperties
 import io.jsonwebtoken.Jwts

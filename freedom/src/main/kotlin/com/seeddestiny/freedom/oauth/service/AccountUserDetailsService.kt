@@ -1,4 +1,4 @@
-package com.seeddestiny.freedom.service
+package com.seeddestiny.freedom.oauth.service
 
 import com.seeddestiny.freedom.account.repository.AccountRepository
 import org.springframework.security.core.userdetails.User

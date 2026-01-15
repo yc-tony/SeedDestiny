@@ -1,5 +1,6 @@
-package com.seeddestiny.freedom.service
+package com.seeddestiny.freedom.oauth.service
 
+import com.seeddestiny.freedom.account.model.Application
 import com.seeddestiny.freedom.account.repository.ApplicationRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.core.AuthorizationGrantType
@@ -9,6 +10,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings
 import org.springframework.stereotype.Service
 import java.time.Duration
+import java.util.*
 
 @Service
 class JpaRegisteredClientRepository(
@@ -23,7 +25,7 @@ class JpaRegisteredClientRepository(
 
     override fun findById(id: String): RegisteredClient? {
         return try {
-            val uuid = java.util.UUID.fromString(id)
+            val uuid = UUID.fromString(id)
             val application = applicationRepository.findById(uuid).orElse(null) ?: return null
             mapToRegisteredClient(application)
         } catch (e: IllegalArgumentException) {
@@ -36,7 +38,7 @@ class JpaRegisteredClientRepository(
         return mapToRegisteredClient(application)
     }
 
-    private fun mapToRegisteredClient(application: com.seeddestiny.freedom.account.model.Application): RegisteredClient {
+    private fun mapToRegisteredClient(application: Application): RegisteredClient {
         val scopes = application.oauthScopes.split(",").map { it.trim() }.toSet()
 
         return RegisteredClient.withId(application.id.toString())
