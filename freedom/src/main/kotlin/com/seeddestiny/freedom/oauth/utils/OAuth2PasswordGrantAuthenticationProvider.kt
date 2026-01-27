@@ -1,5 +1,6 @@
 package com.seeddestiny.freedom.oauth.utils
 
+import com.seeddestiny.freedom.common.utils.logger
 import com.seeddestiny.freedom.oauth.model.OAuth2PasswordGrantAuthenticationToken
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.core.Authentication
@@ -25,6 +26,7 @@ class OAuth2PasswordGrantAuthenticationProvider(
     private val userDetailsService: UserDetailsService,
     private val passwordEncoder: PasswordEncoder
 ) : AuthenticationProvider {
+    private val logger = logger()
 
     override fun authenticate(authentication: Authentication): Authentication {
         val passwordGrantAuth = authentication as OAuth2PasswordGrantAuthenticationToken
@@ -36,6 +38,7 @@ class OAuth2PasswordGrantAuthenticationProvider(
 
         // Validate grant type
         if (!registeredClient.authorizationGrantTypes.contains(passwordGrantAuth.getGrantType())) {
+            logger.error("Invalid grant type for client: ${clientPrincipal.principal}")
             throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT))
         }
 
@@ -43,10 +46,12 @@ class OAuth2PasswordGrantAuthenticationProvider(
         val userDetails = try {
             userDetailsService.loadUserByUsername(passwordGrantAuth.username)
         } catch (e: Exception) {
+            logger.error("Failed to load user: ${passwordGrantAuth.username}", e)
             throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT))
         }
 
         if (!passwordEncoder.matches(passwordGrantAuth.password, userDetails.password)) {
+            logger.error("Invalid password for user: ${passwordGrantAuth.username}")
             throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT))
         }
 

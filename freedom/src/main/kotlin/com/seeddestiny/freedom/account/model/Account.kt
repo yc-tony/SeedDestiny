@@ -17,10 +17,10 @@ data class Account(
     var id: String? = null,
 
     @Column(name = "username", nullable = false, unique = true, length = 100)
-    var username: String,
+    var username: String? = null,
 
     @Column(name = "password", nullable = false, length = 255)
-    var password: String,
+    var password: String? = null,
 
     @Column(name = "phone", nullable = true, length = 20)
     var phone: String? = null,

@@ -20,13 +20,13 @@ data class Application(
     var name: String? = null,
 
     @Column(name = "password", nullable = false, length = 255)
-    var password: String,
+    var password: String? = null,
 
     @Column(name = "grant_types", nullable = false, length = 500)
-    var grantTypes: String, // Comma-separated scopes
+    var grantTypes: String? = null, // Comma-separated scopes
 
     @Column(name = "scopes", nullable = false, length = 500)
-    var oauthScopes: String, // Comma-separated scopes
+    var oauthScopes: String? = null, // Comma-separated scopes
 
     @Column(name = "access_expires", nullable = true, length = 100)
     var accessExpires: String? = null,

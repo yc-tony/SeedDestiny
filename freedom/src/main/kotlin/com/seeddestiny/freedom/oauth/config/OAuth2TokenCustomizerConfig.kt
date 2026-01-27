@@ -1,7 +1,6 @@
 package com.seeddestiny.freedom.oauth.config
 
 import com.seeddestiny.freedom.account.repository.AccountRepository
-import com.seeddestiny.freedom.application.repository.ApplicationRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext
@@ -9,7 +8,6 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 
 @Configuration
 class OAuth2TokenCustomizerConfig(
-    private val applicationRepository: ApplicationRepository,
     private val accountRepository: AccountRepository
 ) {
 
