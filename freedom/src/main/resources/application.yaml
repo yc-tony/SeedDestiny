@@ -3,10 +3,11 @@ spring:
     name: freedom
 
   datasource:
-    url: jdbc:mysql://localhost:3306/freedom?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    # 使用 log4jdbc 來記錄 SQL，將 jdbc:mysql 改為 jdbc:log4jdbc:mysql
+    url: jdbc:log4jdbc:mysql://localhost:3306/freedom?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: freedom
     password: freedom
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
   jpa:
     hibernate:
       # Hibernate 自動建表策略 (ddl-auto) 說明：
@@ -18,13 +19,7 @@ spring:
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: false
-        use_sql_comments: true
-        type: trace # 這行可以幫助在某些情況下顯示參數類型
-        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: false
     open-in-view: false
 
 # JWT Configuration

@@ -40,6 +40,9 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
+	// Log4JDBC for JDBC logging (使用 log4jdbc-log4j2 版本，支援 SLF4J)
+	implementation("org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16")
+
 	// BCrypt for password encoding
 	implementation("org.springframework.security:spring-security-crypto")
 
