@@ -3,6 +3,7 @@ package com.seeddestiny.freedom.oauth.utils
 import com.seeddestiny.freedom.common.utils.logger
 import com.seeddestiny.freedom.oauth.model.OAuth2PasswordGrantAuthenticationToken
 import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -16,7 +17,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
 
@@ -25,7 +25,6 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
  * 負責驗證 Client 權限、校驗使用者帳號密碼，並核發 Access Token
  */
 class OAuth2PasswordGrantAuthenticationProvider(
-    private val registeredClientRepository: RegisteredClientRepository,
     private val authorizationService: OAuth2AuthorizationService,
     private val tokenGenerator: OAuth2TokenGenerator<*>,
     private val userDetailsService: UserDetailsService,
@@ -62,18 +61,25 @@ class OAuth2PasswordGrantAuthenticationProvider(
             throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT))
         }
 
-        // 5. 準備 Token 產生的上下文資訊 (Context)
+        // 5. 建立使用者的 Authentication 物件（用於 Token Context 和授權紀錄）
+        val userAuthentication = UsernamePasswordAuthenticationToken(
+            userDetails,
+            userDetails.password,
+            userDetails.authorities
+        )
+
+        // 6. 準備 Token 產生的上下文資訊 (Context)
         val authorizationServerContext = org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder.getContext()
         val tokenContext = DefaultOAuth2TokenContext.builder()
             .registeredClient(registeredClient)
-            .principal(clientPrincipal)
+            .principal(userAuthentication)  // 使用使用者的 Authentication，而非 Client 的
             .authorizationGrantType(passwordGrantAuth.getGrantType())
             .authorizedScopes(registeredClient.scopes ?: emptySet())
             .tokenType(OAuth2TokenType.ACCESS_TOKEN)
             .authorizationServerContext(authorizationServerContext)
             .build()
 
-        // 6. 產生 Access Token
+        // 7. 產生 Access Token
         val generatedAccessToken = tokenGenerator.generate(tokenContext)
             ?: throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR))
 
@@ -85,23 +91,50 @@ class OAuth2PasswordGrantAuthenticationProvider(
             tokenContext.authorizedScopes
         )
 
-        // 7. 建立並儲存授權紀錄 (Authorization Record)
+        // 8. 產生 Refresh Token（如果 Client 支援 refresh_token grant type）
+        var refreshToken: org.springframework.security.oauth2.core.OAuth2RefreshToken? = null
+        if (registeredClient.authorizationGrantTypes.contains(org.springframework.security.oauth2.core.AuthorizationGrantType.REFRESH_TOKEN)) {
+            val refreshTokenContext = DefaultOAuth2TokenContext.builder()
+                .registeredClient(registeredClient)
+                .principal(userAuthentication)  // 使用使用者的 Authentication
+                .authorizationGrantType(passwordGrantAuth.getGrantType())
+                .authorizedScopes(registeredClient.scopes ?: emptySet())
+                .tokenType(OAuth2TokenType.REFRESH_TOKEN)
+                .authorizationServerContext(authorizationServerContext)
+                .build()
+
+            val generatedRefreshToken = tokenGenerator.generate(refreshTokenContext)
+            if (generatedRefreshToken != null) {
+                refreshToken = org.springframework.security.oauth2.core.OAuth2RefreshToken(
+                    generatedRefreshToken.tokenValue,
+                    generatedRefreshToken.issuedAt,
+                    generatedRefreshToken.expiresAt
+                )
+            }
+        }
+
+        // 9. 建立並儲存授權紀錄 (Authorization Record)
         val authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
             .principalName(userDetails.username)
             .authorizationGrantType(passwordGrantAuth.getGrantType())
-            .attribute("username", userDetails.username)
-
-        val authorization = authorizationBuilder
+            .authorizedScopes(registeredClient.scopes ?: emptySet<String>())
+            .attribute(java.security.Principal::class.java.name, userAuthentication)  // 使用 Principal.class.getName() 作為 key
             .accessToken(accessToken)
-            .build()
 
+        // 如果有 Refresh Token，也一併儲存
+        if (refreshToken != null) {
+            authorizationBuilder.refreshToken(refreshToken)
+        }
+
+        val authorization = authorizationBuilder.build()
         authorizationService.save(authorization)
 
-        // 8. 回傳成功的驗證 Token，包含核發的 Access Token
+        // 10. 回傳成功的驗證 Token，包含核發的 Access Token 和 Refresh Token
         return OAuth2AccessTokenAuthenticationToken(
             registeredClient,
             clientPrincipal,
-            accessToken
+            accessToken,
+            refreshToken
         )
     }
 

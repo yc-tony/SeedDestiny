@@ -18,7 +18,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings
@@ -36,7 +35,6 @@ import java.util.*
  */
 @Configuration
 class AuthorizationServerConfig(
-    private val registeredClientRepository: RegisteredClientRepository,
     private val authorizationService: OAuth2AuthorizationService,
     private val userDetailsService: UserDetailsService,
     private val passwordEncoder: PasswordEncoder
@@ -60,7 +58,6 @@ class AuthorizationServerConfig(
                     .accessTokenRequestConverter(OAuth2PasswordGrantAuthenticationConverter())
                     .authenticationProvider(
                         OAuth2PasswordGrantAuthenticationProvider(
-                            registeredClientRepository,
                             authorizationService,
                             tokenGenerator,
                             userDetailsService,

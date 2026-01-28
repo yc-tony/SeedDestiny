@@ -1,4 +1,4 @@
-package com.seeddestiny.freedom.oauth.service
+package com.seeddestiny.freedom.oauth.repository
 
 import com.seeddestiny.freedom.application.model.Application
 import com.seeddestiny.freedom.application.repository.ApplicationRepository
