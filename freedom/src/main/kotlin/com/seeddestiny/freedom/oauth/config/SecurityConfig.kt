@@ -10,10 +10,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 
+/**
+ * 通用安全配置
+ * 定義預設的登入行為與 API 存取權限控制
+ */
 @Configuration
 @EnableWebSecurity
 class SecurityConfig {
 
+    /**
+     * 預設安全過濾鏈，處理一般的 HTTP 請求
+     */
     @Bean
     @Order(2)
     fun defaultSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {

@@ -9,6 +9,10 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
+/**
+ * OAuth2 測試資料初始化器
+ * 在系統啟動時自動建立預設的 Application 與 Account 資料
+ */
 @Component
 class OauthDataInitializer : CommandLineRunner {
 
@@ -27,6 +31,9 @@ class OauthDataInitializer : CommandLineRunner {
         initializeApplication()
     }
 
+    /**
+     * 初始化預設應用程式 (Client)
+     */
     private fun initializeApplication() {
         if (applicationRepository.count() > 0L) return
 
@@ -40,6 +47,9 @@ class OauthDataInitializer : CommandLineRunner {
         applicationRepository.save(application)
     }
 
+    /**
+     * 初始化預設管理員帳號 (User)
+     */
     private fun initializeAccount() {
         if (accountRepository.count() > 0L) return
 

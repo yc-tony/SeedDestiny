@@ -9,13 +9,21 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      # Hibernate 自動建表策略 (ddl-auto) 說明：
+      # create: 每次啟動時都會刪除舊表並重新建立 (測試用，資料會遺失)
+      # create-drop: 啟動時建立，關閉時刪除表 (測試用)
+      # update: 啟動時根據實體類自動更新資料表結構 (常用的開發環境設定)
+      # validate: 啟動時只檢查資料表結構與實體類是否一致，不會修改表 (生產環境推薦)
+      # none: 不進行任何操作
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+        use_sql_comments: true
+        type: trace # 這行可以幫助在某些情況下顯示參數類型
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
 

@@ -12,9 +12,13 @@
     </appender>
 
     <!-- Spring Boot 相關的日誌級別設定 -->
-    <logger name="org.springframework" level="INFO"/>
-    <logger name="org.springframework.web" level="INFO"/>
-    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.springframework" level="ERROR"/>
+    <logger name="org.springframework.web" level="ERROR"/>
+    <logger name="org.springframework.security" level="ERROR"/>
+    <logger name="org.springframework.security.oauth2" level="ERROR"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="ERROR"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate" level="ERROR"/>
 
     <!-- 您的應用程式日誌級別 -->
     <logger name="com.seeddestiny.freedom" level="DEBUG"/>

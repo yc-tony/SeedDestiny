@@ -24,13 +24,16 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings
 import org.springframework.security.oauth2.server.authorization.token.*
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.util.*
 
+/**
+ * OAuth2 授權伺服器配置
+ * 定義 OAuth2 端點、驗證器、Token 生成方式以及安全過濾鏈
+ */
 @Configuration
 class AuthorizationServerConfig(
     private val registeredClientRepository: RegisteredClientRepository,
@@ -39,6 +42,9 @@ class AuthorizationServerConfig(
     private val passwordEncoder: PasswordEncoder
 ) {
 
+    /**
+     * 配置授權伺服器的安全過濾鏈
+     */
     @Bean
     @Order(1)
     fun authorizationServerSecurityFilterChain(
@@ -49,6 +55,7 @@ class AuthorizationServerConfig(
 
         http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
             .tokenEndpoint { tokenEndpoint ->
+                // 註冊自定義的密碼模式轉換器與驗證處理器
                 tokenEndpoint
                     .accessTokenRequestConverter(OAuth2PasswordGrantAuthenticationConverter())
                     .authenticationProvider(
@@ -65,9 +72,14 @@ class AuthorizationServerConfig(
 
         http
             .exceptionHandling { exceptions ->
-                exceptions.authenticationEntryPoint(
-                    LoginUrlAuthenticationEntryPoint("/login")
-                )
+                // 移除登入頁面跳轉，改為回傳 401 錯誤
+                exceptions.authenticationEntryPoint { request, response, authException ->
+                    response.status = 401
+                    response.contentType = "application/json;charset=UTF-8"
+                    response.writer.write(
+                        """{"error":"unauthorized","error_description":"${authException.message}"}"""
+                    )
+                }
             }
             .oauth2ResourceServer { resourceServer ->
                 resourceServer.jwt(Customizer.withDefaults())
@@ -76,6 +88,9 @@ class AuthorizationServerConfig(
         return http.build()
     }
 
+    /**
+     * 配置 Token 產生器，支持 JWT 和 Access/Refresh Token 的生成
+     */
     @Bean
     fun tokenGenerator(
         jwtEncoder: JwtEncoder,

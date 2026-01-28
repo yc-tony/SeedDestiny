@@ -12,6 +12,10 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.stereotype.Service
 import java.time.Duration
 
+/**
+ * 基於 JPA 的註冊 Client 儲存庫
+ * 將 OAuth2 的 RegisteredClient 映射到資料庫中的 Application 實體
+ */
 @Service
 class JpaRegisteredClientRepository: RegisteredClientRepository {
     private val logger = logger()
@@ -38,6 +42,9 @@ class JpaRegisteredClientRepository: RegisteredClientRepository {
         return findById(clientId)
     }
 
+    /**
+     * 將資料庫中的 Application 物件轉換為 OAuth2 的 RegisteredClient 物件
+     */
     private fun mapToRegisteredClient(application: Application): RegisteredClient {
         val scopes = application.oauthScopes?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
 
