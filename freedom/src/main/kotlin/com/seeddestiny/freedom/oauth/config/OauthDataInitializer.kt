@@ -41,7 +41,9 @@ class OauthDataInitializer : CommandLineRunner {
             name = "test",
             password = passwordEncoder.encode("test123"),
             grantTypes = "password,refresh_token,client_credentials",
-            oauthScopes = "public.*,private.*,admin.*"
+            oauthScopes = "public.*,private.*,admin.*",
+            accessExpires = "PT5M",
+            refreshExpires = "PT10M"
         )
 
         applicationRepository.save(application)
