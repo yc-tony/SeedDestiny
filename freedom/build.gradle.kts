@@ -35,6 +35,7 @@ dependencies {
 	implementation("com.mysql:mysql-connector-j")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.apache.commons:commons-text:1.9")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
 	// JWT dependencies
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
