@@ -2,12 +2,12 @@ spring:
   application:
     name: freedom
 
-  datasource:
-    # 使用 log4jdbc 來記錄 SQL，將 jdbc:mysql 改為 jdbc:log4jdbc:mysql
-    url: jdbc:log4jdbc:mysql://localhost:3306/freedom?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: freedom
-    password: freedom
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+  profiles:
+    # 資料庫切換開關：預設使用 h2，可切換為 mysql
+    # 使用方式：在啟動時加上 --spring.profiles.active=mysql
+    # 或設定環境變數 SPRING_PROFILES_ACTIVE=mysql
+    active: h2
+
   jpa:
     hibernate:
       # Hibernate 自動建表策略 (ddl-auto) 說明：
@@ -21,6 +21,44 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: false
     open-in-view: false
+
+---
+# MySQL 設定檔
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    # 使用 log4jdbc 來記錄 SQL，將 jdbc:mysql 改為 jdbc:log4jdbc:mysql
+    url: jdbc:log4jdbc:mysql://localhost:3306/freedom?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: freedom
+    password: freedom
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+
+---
+# H2 資料庫設定檔（本地檔案模式，MySQL 相容模式）
+spring:
+  config:
+    activate:
+      on-profile: h2
+  datasource:
+    # H2 資料庫儲存在應用程式相對路徑的 ./data/h2db 目錄下
+    # AUTO_SERVER=TRUE 允許多個連線同時存取
+    # MODE=MySQL 啟用 MySQL 相容模式，讓 H2 的行為更接近 MySQL
+    # DATABASE_TO_LOWER=TRUE 將資料庫物件名稱轉為小寫（與 MySQL 預設行為一致）
+    # CASE_INSENSITIVE_IDENTIFIERS=TRUE 識別符號不區分大小寫
+    url: jdbc:log4jdbc:h2:file:./data/h2db;AUTO_SERVER=TRUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;TRACE_LEVEL_FILE=0
+    username: sa
+    password:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+  h2:
+    console:
+      # 啟用 H2 Web Console，可透過 http://localhost:8080/h2-console 存取
+      enabled: true
+      path: /h2-console
+  jpa:
+#    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.H2Dialect
 
 # JWT Configuration
 jwt:

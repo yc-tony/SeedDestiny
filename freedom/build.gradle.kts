@@ -33,8 +33,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.security:spring-security-oauth2-authorization-server")
 	implementation("com.mysql:mysql-connector-j")
+	implementation("com.h2database:h2")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.apache.commons:commons-text:1.9")
+	implementation("org.apache.commons:commons-text:1.10.0")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
 	// JWT dependencies

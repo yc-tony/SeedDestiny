@@ -28,6 +28,7 @@ class SecurityConfig {
         http
             .authorizeHttpRequests { authorize ->
                 authorize
+                    .requestMatchers("/h2-console/**").permitAll()
                     .anyRequest().authenticated()
             }
             .oauth2ResourceServer { oauth2 ->
@@ -44,6 +45,9 @@ class SecurityConfig {
                 }
             }
             .csrf { it.disable() }  // 停用 CSRF（API 模式）
+            .headers { headers ->
+                headers.frameOptions { it.sameOrigin() }           // 允許 iframe（H2 Console 需要）
+            }
 
         return http.build()
     }
