@@ -2,5 +2,8 @@ package com.seeddestiny.freedom.resource.model
 
 enum class ResourceFileType {
     OBJ,
-    GPL
+    FBX,
+    STL,
+    GLTF,
+    GLB;
 }

@@ -7,19 +7,22 @@ import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "resource")
-data class Resource(
+@Table(name = "material")
+data class Material(
     @Id
     @GenericGenerator(name = "system-uuid", strategy = "uuid2")
     @GeneratedValue(generator = "system-uuid")
     @Column(name = "id", nullable = false, unique = true, length = 100)
     var id: String? = null,
 
+    @Column(name = "reference_id", length = 100)
+    var referenceId: String? = null,
+
     @Column(name = "title", length = 255)
     var title: String? = null,
 
     @Column(name = "file_type", nullable = false, length = 20)
-    var fileType: ResourceFileType? = null,
+    var fileType: MaterialFileType? = null,
 
     @Column(name = "file_path", length = 1024)
     var filePath: String? = null,
