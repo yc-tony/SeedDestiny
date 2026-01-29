@@ -68,16 +68,6 @@ class AuthorizationServerConfig(
             .oidc(Customizer.withDefaults())
 
         http
-            .exceptionHandling { exceptions ->
-                // 移除登入頁面跳轉，改為回傳 401 錯誤
-                exceptions.authenticationEntryPoint { request, response, authException ->
-                    response.status = 401
-                    response.contentType = "application/json;charset=UTF-8"
-                    response.writer.write(
-                        """{"error":"unauthorized","error_description":"${authException.message}"}"""
-                    )
-                }
-            }
             .oauth2ResourceServer { resourceServer ->
                 resourceServer.jwt(Customizer.withDefaults())
             }

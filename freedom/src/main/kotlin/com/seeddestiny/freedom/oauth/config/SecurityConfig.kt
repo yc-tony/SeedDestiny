@@ -28,7 +28,15 @@ class SecurityConfig {
         http
             .authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers("/h2-console/**").permitAll()
+                    .requestMatchers(
+                        "/",
+                        "/h2-console/**",
+                        "/**.html",
+                        "/assets/**",
+                        "/favicon.ico",
+                        "/**.svg",
+                        "/images/**"
+                    ).permitAll()
                     .anyRequest().authenticated()
             }
             .oauth2ResourceServer { oauth2 ->
