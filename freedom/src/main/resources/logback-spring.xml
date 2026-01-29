@@ -39,6 +39,7 @@
     <logger name="jdbc.audit" level="OFF"/>              <!-- 所有 JDBC 呼叫 -->
     <logger name="jdbc.sqlonly" level="OFF"/>            <!-- 只顯示 SQL（不含參數） -->
     <logger name="jdbc.sqltiming" level="INFO"/>         <!-- 顯示 SQL + 參數 + 執行時間 -->
+    <logger name="ch.qos.logback.classic" level="ERROR"/> <!-- Logback 日誌 -->
 
     <!-- 您的應用程式日誌級別 -->
     <logger name="com.seeddestiny.freedom" level="DEBUG"/>
