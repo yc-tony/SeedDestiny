@@ -64,3 +64,8 @@ spring:
 jwt:
   secret: kira-yamato
   expiration: 3600  # 1 hour in milliseconds
+
+
+seed:
+  resource:
+    upload-file-path: ./data/model
