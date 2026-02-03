@@ -1,6 +1,10 @@
 spring:
   application:
     name: freedom
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
 
   profiles:
     # 資料庫切換開關：預設使用 h2，可切換為 mysql

@@ -189,3 +189,162 @@ input[type="file"] {
     border-color: rgba(0, 0, 0, 0.1);
   }
 }
+
+/* Spinner styles */
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 4px solid #646cff;
+  width: 50px;
+  height: 50px;
+  -webkit-animation: spin 1s linear infinite; /* Safari */
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    margin-left: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1a1a1a;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #333;
+}
+
+.navbar-brand a {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.navbar-menu {
+    display: flex;
+    gap: 2rem;
+}
+
+.navbar-item {
+    color: #ccc;
+    text-decoration: none;
+}
+
+.navbar-item:hover {
+    color: #fff;
+}
+
+.navbar-end {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logout-btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    background-color: #dc3545;
+}
+
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
+}
+
+.resource-card {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border: 1px solid #333;
+}
+
+.resource-card:hover {
+    transform: translateY(-5px);
+    border-color: #646cff;
+}
+
+.resource-preview {
+    height: 200px;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+}
+
+.resource-info {
+    padding: 1rem;
+}
+
+.resource-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.library-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.resource-detail-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #646cff;
+    padding: 0;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.back-btn:hover {
+    text-decoration: underline;
+    background: none;
+}
+
+.detail-header {
+    margin-bottom: 2rem;
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.edit-title-row {
+    display: flex;
+    gap: 0.5rem;
+}

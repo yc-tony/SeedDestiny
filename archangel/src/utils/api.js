@@ -175,3 +175,15 @@ export const updateMaterial = async (token, refreshToken, materialId, title) => 
 
   return response.data;
 };
+
+export const getAllResources = async (token, refreshToken) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.get('/admin/resource/all');
+  return response.data;
+};
+
+export const getAllMaterialsByResource = async (token, refreshToken, resourceId) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.get(`/admin/resource/materials/${resourceId}`);
+  return response.data;
+};
