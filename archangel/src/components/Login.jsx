@@ -8,8 +8,6 @@ function Login() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    clientId: '',
-    clientSecret: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,19 +27,21 @@ function Login() {
     try {
       const tokenData = await getOAuth2Token(
         formData.username,
-        formData.password,
-        formData.clientId,
-        formData.clientSecret
+        formData.password
       );
 
       // 儲存 token 和用戶資訊
-      login(tokenData.access_token, {
-        username: formData.username,
-        scope: tokenData.scope,
-      });
+      login(
+        tokenData.access_token,
+        tokenData.refresh_token,
+        {
+          username: formData.username,
+          scope: tokenData.scope,
+        }
+      );
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || '登入失敗，請檢查您的憑證');
+      setError(err.response?.data?.message || '登入失敗，請檢查您的帳號密碼');
     } finally {
       setLoading(false);
     }
@@ -77,30 +77,6 @@ function Login() {
               onChange={handleChange}
               required
               autoComplete="current-password"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="clientId">Client ID</label>
-            <input
-              type="text"
-              id="clientId"
-              name="clientId"
-              value={formData.clientId}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="clientSecret">Client Secret</label>
-            <input
-              type="password"
-              id="clientSecret"
-              name="clientSecret"
-              value={formData.clientSecret}
-              onChange={handleChange}
-              required
             />
           </div>
 

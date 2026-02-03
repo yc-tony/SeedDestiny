@@ -3,7 +3,7 @@ import { useAuth } from '../store/authStore';
 import { updateMaterial } from '../utils/api';
 
 function MaterialUpdate() {
-  const { token } = useAuth();
+  const { token, refreshToken } = useAuth();
   const [materialId, setMaterialId] = useState('');
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ function MaterialUpdate() {
     setMessage({ type: '', text: '' });
 
     try {
-      const result = await updateMaterial(token, materialId, title);
+      const result = await updateMaterial(token, refreshToken, materialId, title);
 
       setMessage({
         type: 'success',

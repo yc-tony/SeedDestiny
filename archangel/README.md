@@ -62,10 +62,17 @@ npm run preview
 複製 `.env.example` 為 `.env` 並設定：
 
 ```
-VITE_API_BASE_URL=http://localhost:8080
+# API Base URL (留空則使用 vite proxy)
+VITE_API_BASE_URL=
+
+# OAuth2 Client Credentials (必填)
+VITE_CLIENT_ID=your-client-id
+VITE_CLIENT_SECRET=your-client-secret
 ```
 
-如果使用 Vite proxy（開發模式），可以留空。
+**重要**:
+- `VITE_CLIENT_ID` 和 `VITE_CLIENT_SECRET` 必須設定為您的 OAuth2 client credentials
+- 如果使用 Vite proxy（開發模式），`VITE_API_BASE_URL` 可以留空
 
 ## 專案結構
 
@@ -94,13 +101,20 @@ archangel/
 
 ## 使用說明
 
-1. **登入**: 輸入使用者名稱、密碼、Client ID 和 Client Secret
-2. **上傳 3D 模型**: 選擇模型檔案並上傳（可選擇性提供 Resource ID 進行更新）
-3. **上傳材質**: 提供 Resource ID 並選擇材質檔案上傳
-4. **更新資料**: 使用 Resource ID 或 Material ID 更新標題資訊
+1. **設定環境變數**: 在 `.env` 檔案中設定 OAuth2 client credentials
+2. **登入**: 輸入使用者名稱和密碼（client credentials 已在配置中設定）
+3. **上傳 3D 模型**: 選擇模型檔案並上傳（可選擇性提供 Resource ID 進行更新）
+4. **上傳材質**: 提供 Resource ID 並選擇材質檔案上傳
+5. **更新資料**: 使用 Resource ID 或 Material ID 更新標題資訊
+
+## 安全特性
+
+- **自動 Token 刷新**: 當 access token 過期（401 錯誤）時，系統會自動使用 refresh token 獲取新的 access token
+- **自動登出**: 如果 refresh token 也失敗，系統會自動登出並返回登入頁面
+- **Token 持久化**: Access token 和 refresh token 都會儲存在 localStorage 中以保持登入狀態
 
 ## 注意事項
 
 - 需要有效的 OAuth2 憑證和 `admin:resource` scope
 - 後端 API 需要在 `http://localhost:8080` 運行（或修改 vite.config.js 中的 proxy 設定）
-- Token 會儲存在 localStorage 中以保持登入狀態
+- Client credentials 應該設定在 `.env` 檔案中，不要提交到版本控制系統

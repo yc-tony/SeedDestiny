@@ -3,7 +3,7 @@ import { useAuth } from '../store/authStore';
 import { uploadMaterial } from '../utils/api';
 
 function MaterialUpload() {
-  const { token } = useAuth();
+  const { token, refreshToken } = useAuth();
   const [file, setFile] = useState(null);
   const [resourceId, setResourceId] = useState('');
   const [materialId, setMaterialId] = useState('');
@@ -32,6 +32,7 @@ function MaterialUpload() {
     try {
       const result = await uploadMaterial(
         token,
+        refreshToken,
         file,
         resourceId,
         materialId || null

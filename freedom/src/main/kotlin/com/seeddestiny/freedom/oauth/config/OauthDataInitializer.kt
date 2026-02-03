@@ -38,6 +38,7 @@ class OauthDataInitializer : CommandLineRunner {
         if (applicationRepository.count() > 0L) return
 
         val application = Application(
+            id = "2d5171b5-3e7f-4b08-8ab6-06d586ecef87",
             name = "test",
             password = passwordEncoder.encode("test123"),
             grantTypes = "password,refresh_token,client_credentials",

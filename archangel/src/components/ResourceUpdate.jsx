@@ -3,7 +3,7 @@ import { useAuth } from '../store/authStore';
 import { updateResource } from '../utils/api';
 
 function ResourceUpdate() {
-  const { token } = useAuth();
+  const { token, refreshToken } = useAuth();
   const [resourceId, setResourceId] = useState('');
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ function ResourceUpdate() {
     setMessage({ type: '', text: '' });
 
     try {
-      const result = await updateResource(token, resourceId, title);
+      const result = await updateResource(token, refreshToken, resourceId, title);
 
       setMessage({
         type: 'success',

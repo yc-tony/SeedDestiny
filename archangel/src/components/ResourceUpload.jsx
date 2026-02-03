@@ -3,7 +3,7 @@ import { useAuth } from '../store/authStore';
 import { uploadResource } from '../utils/api';
 
 function ResourceUpload() {
-  const { token } = useAuth();
+  const { token, refreshToken } = useAuth();
   const [file, setFile] = useState(null);
   const [resourceId, setResourceId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,6 +27,7 @@ function ResourceUpload() {
     try {
       const result = await uploadResource(
         token,
+        refreshToken,
         file,
         resourceId || null
       );

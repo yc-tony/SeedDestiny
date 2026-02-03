@@ -1,9 +1,17 @@
 import axios from 'axios';
+import { AUTH_CONFIG } from '../config/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
-// OAuth2 Token API
-export const getOAuth2Token = async (username, password, clientId, clientSecret) => {
+// 用於儲存 logout callback
+let logoutCallback = null;
+
+export const setLogoutCallback = (callback) => {
+  logoutCallback = callback;
+};
+
+// OAuth2 Token API - 使用 password grant
+export const getOAuth2Token = async (username, password) => {
   const params = new URLSearchParams();
   params.append('grant_type', 'password');
   params.append('username', username);
@@ -15,33 +23,104 @@ export const getOAuth2Token = async (username, password, clientId, clientSecret)
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     auth: {
-      username: clientId,
-      password: clientSecret,
+      username: AUTH_CONFIG.clientId,
+      password: AUTH_CONFIG.clientSecret,
     },
   });
 
   return response.data;
 };
 
-// 創建 axios instance with token
-const createApiClient = (token) => {
-  return axios.create({
+// OAuth2 Refresh Token API
+export const refreshOAuth2Token = async (refreshToken) => {
+  const params = new URLSearchParams();
+  params.append('grant_type', 'refresh_token');
+  params.append('refresh_token', refreshToken);
+
+  const response = await axios.post(`${API_BASE_URL}/oauth2/token`, params, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    auth: {
+      username: AUTH_CONFIG.clientId,
+      password: AUTH_CONFIG.clientSecret,
+    },
+  });
+
+  return response.data;
+};
+
+// 創建 axios instance with token 和 401 攔截器
+const createApiClient = (token, refreshToken) => {
+  const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
       'Authorization': `Bearer ${token}`,
     },
   });
+
+  // 添加 response 攔截器處理 401
+  api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+
+      // 如果是 401 且還沒重試過
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+
+        try {
+          // 嘗試使用 refresh token 獲取新的 access token
+          if (refreshToken) {
+            const tokenData = await refreshOAuth2Token(refreshToken);
+
+            // 更新 localStorage 中的 token
+            const savedUser = localStorage.getItem('admin_user');
+            if (savedUser) {
+              const userData = JSON.parse(savedUser);
+              localStorage.setItem('admin_token', tokenData.access_token);
+              if (tokenData.refresh_token) {
+                localStorage.setItem('admin_refresh_token', tokenData.refresh_token);
+              }
+
+              // 更新請求的 Authorization header
+              originalRequest.headers['Authorization'] = `Bearer ${tokenData.access_token}`;
+
+              // 重試原始請求
+              return axios(originalRequest);
+            }
+          }
+        } catch (refreshError) {
+          console.error('Refresh token failed:', refreshError);
+          // Refresh token 失敗，執行登出
+          if (logoutCallback) {
+            logoutCallback();
+          }
+          return Promise.reject(refreshError);
+        }
+      }
+
+      // 如果不是 401 或已經重試過，直接拒絕
+      if (error.response?.status === 401 && logoutCallback) {
+        logoutCallback();
+      }
+
+      return Promise.reject(error);
+    }
+  );
+
+  return api;
 };
 
 // Resource APIs
-export const uploadResource = async (token, file, resourceId = null) => {
+export const uploadResource = async (token, refreshToken, file, resourceId = null) => {
   const formData = new FormData();
   formData.append('file', file);
   if (resourceId) {
     formData.append('resourceId', resourceId);
   }
 
-  const api = createApiClient(token);
+  const api = createApiClient(token, refreshToken);
   const response = await api.post('/admin/resource/upload/resource', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -51,7 +130,7 @@ export const uploadResource = async (token, file, resourceId = null) => {
   return response.data;
 };
 
-export const uploadMaterial = async (token, file, resourceId, materialId = null) => {
+export const uploadMaterial = async (token, refreshToken, file, resourceId, materialId = null) => {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('resourceId', resourceId);
@@ -59,7 +138,7 @@ export const uploadMaterial = async (token, file, resourceId, materialId = null)
     formData.append('materialId', materialId);
   }
 
-  const api = createApiClient(token);
+  const api = createApiClient(token, refreshToken);
   const response = await api.post('/admin/resource/upload/material', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -69,8 +148,8 @@ export const uploadMaterial = async (token, file, resourceId, materialId = null)
   return response.data;
 };
 
-export const updateResource = async (token, resourceId, title) => {
-  const api = createApiClient(token);
+export const updateResource = async (token, refreshToken, resourceId, title) => {
+  const api = createApiClient(token, refreshToken);
   const params = new URLSearchParams();
   params.append('title', title);
 
@@ -83,8 +162,8 @@ export const updateResource = async (token, resourceId, title) => {
   return response.data;
 };
 
-export const updateMaterial = async (token, materialId, title) => {
-  const api = createApiClient(token);
+export const updateMaterial = async (token, refreshToken, materialId, title) => {
+  const api = createApiClient(token, refreshToken);
   const params = new URLSearchParams();
   params.append('title', title);
 
