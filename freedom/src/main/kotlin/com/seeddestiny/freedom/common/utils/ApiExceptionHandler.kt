@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class ApiExceptionHandler {
+    private val logger = logger()
+
     @ExceptionHandler(SeedException::class)
     fun handleSeedException(ex: SeedException): ResponseEntity<ApiResponseOutput> {
+        logger.warn("SeedException: ${ex.message}", ex)
         return ResponseEntity.status(ex.errorCode.httpStatus)
             .body(ApiResponseOutput(code = ex.errorCode.code, message = ex.message))
     }

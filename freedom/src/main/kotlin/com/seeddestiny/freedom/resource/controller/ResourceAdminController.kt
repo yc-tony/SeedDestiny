@@ -2,6 +2,7 @@ package com.seeddestiny.freedom.resource.controller
 
 import com.seeddestiny.freedom.common.exception.SeedException
 import com.seeddestiny.freedom.common.model.ApiResponseOutput
+import com.seeddestiny.freedom.common.utils.logger
 import com.seeddestiny.freedom.resource.config.ResourceProperties
 import com.seeddestiny.freedom.resource.exception.FILE_NAME_IS_NOT_VALID
 import com.seeddestiny.freedom.resource.exception.MATERIAL_FILE_NOT_FOUND
@@ -31,6 +32,7 @@ import java.util.*
 @PreAuthorize("#oauth2.hasScope('admin:resource')")
 @Validated
 class ResourceAdminController {
+    private val logger = logger()
 
     @Autowired
     private lateinit var resourceProperties: ResourceProperties
@@ -58,6 +60,7 @@ class ResourceAdminController {
         val resourceFileType = try {
             ResourceFileType.valueOf(fileExtension)
         } catch (e: IllegalArgumentException) {
+            logger.error("Invalid file extension: $fileExtension", e)
             throw SeedException(RESOURCE_FILE_NOT_FOUND, "fileExtension" to fileExtension)
         }
 
@@ -66,13 +69,17 @@ class ResourceAdminController {
         val oldFilePath = existingResource?.filePath
 
         // 3. 儲存新檔案
-        val uploadDir = File(resourceProperties.uploadFilePath, "resources")
+        val preResourceId = existingResource?.id ?: UUID.randomUUID().toString()
+        val uploadDir = File(resourceProperties.uploadFilePath, "resources/$preResourceId")
+        logger.info("Upload directory: ${uploadDir.canonicalPath}")
         if (!uploadDir.exists()) {
             uploadDir.mkdirs()
         }
 
         val uniqueFilename = "${UUID.randomUUID()}_$originalFilename"
-        val filePath = Paths.get(uploadDir.absolutePath, uniqueFilename)
+        logger.info("Unique filename: $uniqueFilename")
+        val filePath = Paths.get(uploadDir.canonicalPath, uniqueFilename)
+        logger.info("File path: ${filePath.toString()}")
         Files.copy(file.inputStream, filePath)
 
         // 4. 建立或更新 Resource 資料
@@ -81,6 +88,7 @@ class ResourceAdminController {
             filePath = filePath.toString()
         )
             ?: Resource(
+                id = preResourceId,
                 fileType = resourceFileType,
                 filePath = filePath.toString()
             )
@@ -125,6 +133,7 @@ class ResourceAdminController {
         val materialFileType = try {
             MaterialFileType.valueOf(fileExtension)
         } catch (e: IllegalArgumentException) {
+            logger.error("Invalid file extension: $fileExtension", e)
             throw SeedException(MATERIAL_FILE_NOT_FOUND, "fileExtension" to fileExtension)
         }
 
@@ -134,13 +143,14 @@ class ResourceAdminController {
 
         // 3. 上傳材質到與 resource 相同的目錄
         val resourceFilePath = File(resource.filePath ?: "")
-        val uploadDir = resourceFilePath.parentFile ?: File(resourceProperties.uploadFilePath, "resources")
+        val uploadDir = resourceFilePath.parentFile
+            ?: throw SeedException(RESOURCE_FILE_NOT_FOUND, "resourceId" to resourceId)
         if (!uploadDir.exists()) {
             uploadDir.mkdirs()
         }
 
         val uniqueFilename = "${UUID.randomUUID()}_$originalFilename"
-        val filePath = Paths.get(uploadDir.absolutePath, uniqueFilename)
+        val filePath = Paths.get(uploadDir.canonicalPath, uniqueFilename)
         Files.copy(file.inputStream, filePath)
 
         // 4. 建立或更新 Material 資料
