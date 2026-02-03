@@ -3,6 +3,7 @@ package com.seeddestiny.freedom.resource.controller
 import com.seeddestiny.freedom.common.exception.SeedException
 import com.seeddestiny.freedom.common.model.ApiResponseOutput
 import com.seeddestiny.freedom.resource.config.ResourceProperties
+import com.seeddestiny.freedom.resource.exception.FILE_NAME_IS_NOT_VALID
 import com.seeddestiny.freedom.resource.exception.MATERIAL_FILE_NOT_FOUND
 import com.seeddestiny.freedom.resource.exception.RESOURCE_FILE_NOT_FOUND
 import com.seeddestiny.freedom.resource.exception.RESOURCE_NOT_FOUND
@@ -118,7 +119,7 @@ class ResourceAdminController {
 
         // 檢查檔案副檔名是否為支援的材質格式
         val originalFilename = file.originalFilename
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "檔案名稱不能為空")
+            ?: throw SeedException(FILE_NAME_IS_NOT_VALID)
 
         val fileExtension = originalFilename.substringAfterLast('.', "").uppercase()
         val materialFileType = try {
@@ -174,15 +175,33 @@ class ResourceAdminController {
      * 更新資源資料
      */
     @PutMapping("/update/resource/{resourceId}")
-    fun updateResource(@PathVariable resourceId: String): ApiResponseOutput {
-        return ApiResponseOutput(data = "resourceId" to resourceId)
+    fun updateResource(
+        @PathVariable resourceId: String,
+        @RequestParam("title") title: String
+    ): ApiResponseOutput {
+        val resource = resourceRepository.findByIdOrNull(resourceId)
+            ?: throw SeedException(RESOURCE_NOT_FOUND, "resourceId" to resourceId)
+
+        resource.title = title
+        val updatedResource = resourceRepository.saveAndFlush(resource)
+
+        return ApiResponseOutput(data = updatedResource)
     }
 
     /**
      * 更新材質資料
      */
     @PutMapping("/update/material/{materialId}")
-    fun updateMaterial(@PathVariable materialId: String): ApiResponseOutput {
-        return ApiResponseOutput(data = "materialId" to materialId)
+    fun updateMaterial(
+        @PathVariable materialId: String,
+        @RequestParam("title") title: String
+    ): ApiResponseOutput {
+        val material = materialRepository.findByIdOrNull(materialId)
+            ?: throw SeedException(RESOURCE_NOT_FOUND, "materialId" to materialId)
+
+        material.title = title
+        val updatedMaterial = materialRepository.saveAndFlush(material)
+
+        return ApiResponseOutput(data = updatedMaterial)
     }
 }
