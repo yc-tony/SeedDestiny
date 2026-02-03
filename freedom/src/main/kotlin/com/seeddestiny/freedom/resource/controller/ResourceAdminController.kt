@@ -204,4 +204,19 @@ class ResourceAdminController {
 
         return ApiResponseOutput(data = updatedMaterial)
     }
+
+    /**
+     * 取得所有資源及其材質的摘要資訊
+     */
+    @GetMapping("/all")
+    fun getAllResources(): ApiResponseOutput {
+        val resources = resourceRepository.findAll()
+        return ApiResponseOutput(data = resources)
+    }
+
+    @GetMapping("/materials/{resourceId}")
+    fun getAllMaterialsByResource(@PathVariable resourceId: String): ApiResponseOutput {
+        val materials = materialRepository.findAllByReferenceId(resourceId)
+        return ApiResponseOutput(data = materials)
+    }
 }
