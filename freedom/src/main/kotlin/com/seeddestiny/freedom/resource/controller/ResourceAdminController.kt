@@ -221,12 +221,20 @@ class ResourceAdminController {
     @GetMapping("/all")
     fun getAllResources(): ApiResponseOutput {
         val resources = resourceRepository.findAll()
-        return ApiResponseOutput(data = resources)
+        val resourceOutput = resources.map { resource ->
+            resource.filePath = "/public/resource/download/resource/${resource.id}"
+            resource
+        }
+        return ApiResponseOutput(data = resourceOutput)
     }
 
     @GetMapping("/materials/{resourceId}")
     fun getAllMaterialsByResource(@PathVariable resourceId: String): ApiResponseOutput {
         val materials = materialRepository.findAllByReferenceId(resourceId)
-        return ApiResponseOutput(data = materials)
+        val materialOutput = materials.map { material ->
+            material.filePath = "/public/resource/download/material/${material.id}"
+            material
+        }
+        return ApiResponseOutput(data = materialOutput)
     }
 }

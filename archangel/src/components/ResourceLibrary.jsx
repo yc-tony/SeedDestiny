@@ -115,7 +115,7 @@ function ResourceLibrary() {
                     // Or displayPoster if available.
                     <div className="model-placeholder">
                          {/* We can try to load the model if we have a valid URL */}
-                         {/* <ModelViewer url={getFileUrl(resource.filePath)} fileType={resource.fileType} /> */}
+                         {/* <ModelViewer url={resource.filePath} fileType={resource.fileType} /> */}
                          <span>3D Model</span>
                     </div>
                 ) : (

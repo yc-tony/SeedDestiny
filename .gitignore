@@ -22,3 +22,22 @@ Thumbs.db
 *.swp
 *.swo
 *.db
+
+# 3D Model Assets & Test Directories
+*.obj
+*.mtl
+*.glb
+*.gltf
+*.stl
+*.fbx
+*.blend
+*.maya
+*.max
+tEXTURE/
+textures/
+Texture/
+Textures/
+*-obj/
+*-gltf/
+*-glb/
+*-stl/

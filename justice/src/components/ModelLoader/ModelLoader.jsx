@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useModelStore } from '../../store/modelStore';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -178,6 +178,80 @@ export default function ModelLoader() {
     event.target.value = '';
   };
 
+  const [remoteResourceId, setRemoteResourceId] = useState('');
+
+  const loadFromRemote = async () => {
+    if (!remoteResourceId) return;
+
+    try {
+      const infoRes = await fetch(`/public/resource/${remoteResourceId}/info`);
+      if (!infoRes.ok) throw new Error('Resource info not found');
+      const infoJson = await infoRes.json();
+      const mainFile = infoJson.data.mainFile;
+
+      const assetsRes = await fetch(`/public/resource/${remoteResourceId}/assets`);
+      if (!assetsRes.ok) throw new Error('Assets not found');
+      const assetsJson = await assetsRes.json();
+      const assets = assetsJson.data;
+
+      const filesMap = new Map();
+      filesMap.set(mainFile.filename, mainFile.url);
+      assets.forEach(asset => {
+        filesMap.set(asset.filename, asset.url);
+      });
+
+      const manager = createLoadingManager(filesMap);
+      const extension = getFileExtension(mainFile.filename);
+      let scene;
+
+      if (extension === 'obj') {
+        const loader = new OBJLoader(manager);
+
+        const mtlAsset = assets.find(a => getFileExtension(a.filename) === 'mtl');
+        if (mtlAsset) {
+          const mtlLoader = new MTLLoader(manager);
+          const materials = await new Promise((resolve, reject) => {
+            mtlLoader.load(mtlAsset.filename, (mats) => {
+              mats.preload();
+              resolve(mats);
+            }, undefined, reject);
+          });
+          loader.setMaterials(materials);
+        }
+
+        scene = await new Promise((resolve, reject) => {
+          loader.load(mainFile.filename, resolve, undefined, reject);
+        });
+      } else if (extension === 'gltf' || extension === 'glb') {
+        const loader = new GLTFLoader(manager);
+        const gltf = await new Promise((resolve, reject) => {
+          loader.load(mainFile.filename, resolve, undefined, reject);
+        });
+        scene = gltf.scene;
+      }
+
+      if (scene) {
+        const modelId = `model-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        addModel({
+          id: modelId,
+          name: infoJson.data.title || mainFile.filename,
+          scene: scene,
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
+          materials: [],
+          currentMaterialId: null,
+        });
+        alert(`模型 ${infoJson.data.title} 載入成功`);
+        setRemoteResourceId('');
+      }
+
+    } catch (e) {
+      console.error(e);
+      alert('載入失敗: ' + e.message);
+    }
+  };
+
   const handleButtonClick = () => {
     fileInputRef.current?.click();
   };
@@ -202,6 +276,25 @@ export default function ModelLoader() {
           ? `已加载 ${models.length}/${MAX_MODELS} 个模型`
           : `加载 3D 模型 (${models.length}/${MAX_MODELS})`}
       </button>
+
+      <div style={{ marginTop: '10px', display: 'flex', gap: '5px' }}>
+        <input
+          type="text"
+          value={remoteResourceId}
+          onChange={(e) => setRemoteResourceId(e.target.value)}
+          placeholder="Resource ID"
+          style={{ padding: '5px', width: '120px' }}
+        />
+        <button
+          onClick={loadFromRemote}
+          disabled={!remoteResourceId || models.length >= MAX_MODELS}
+          className="load-button"
+          style={{ width: 'auto' }}
+        >
+          Server Load
+        </button>
+      </div>
+
       {models.length > 0 && (
         <div className="model-list">
           {models.map((model) => (

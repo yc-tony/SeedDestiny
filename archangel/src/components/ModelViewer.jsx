@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls, Stage, useGLTF } from '@react-three/drei';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -14,8 +14,9 @@ function Model({ url, fileType }) {
   // We need to determine loader based on extension or passed type.
 
   let loader = GLTFLoader;
-  if (fileType === 'OBJ') loader = OBJLoader;
-  if (fileType === 'FBX') loader = FBXLoader;
+  const type = fileType ? fileType.toUpperCase() : '';
+  if (type.includes('OBJ')) loader = OBJLoader;
+  if (type.includes('FBX')) loader = FBXLoader;
 
   // NOTE: If the URL requires auth headers, useLoader might fail.
   // We might need to fetch the blob first and create an object URL.
@@ -31,9 +32,11 @@ export default function ModelViewer({ url, fileType }) {
   return (
     <div className="model-viewer-container" style={{ width: '100%', height: '300px' }}>
       <Canvas shadows dpr={[1, 2]} camera={{ fov: 50 }}>
-        <Stage environment="city" intensity={0.6}>
-          <Model url={url} fileType={fileType} />
-        </Stage>
+        <Suspense fallback={null}>
+            <Stage environment="city" intensity={0.6}>
+            <Model url={url} fileType={fileType} />
+            </Stage>
+        </Suspense>
         <OrbitControls makeDefault />
       </Canvas>
     </div>

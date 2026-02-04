@@ -154,9 +154,9 @@ function ResourceDetail() {
              <div className="viewer-placeholder">
                  {/* Replace this with actual ModelViewer when we have valid URLs */}
                  <h3>3D Model Preview</h3>
-                 <p>File: {resource.filePath}</p>
-                 <div style={{background: '#333', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                    [3D Viewer Area]
+                 <p>File URL: {resource.filePath}</p>
+                 <div className="model-viewer-wrapper" style={{ height: '500px', width: '100%', background: '#f0f0f0' }}>
+                    <ModelViewer url={resource.filePath} fileType={resource.fileType} />
                  </div>
              </div>
         </div>
