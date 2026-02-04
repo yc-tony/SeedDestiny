@@ -3,6 +3,7 @@ package com.seeddestiny.freedom.resource.controller
 import com.seeddestiny.freedom.common.exception.SeedException
 import com.seeddestiny.freedom.common.model.ApiResponseOutput
 import com.seeddestiny.freedom.common.utils.logger
+import com.seeddestiny.freedom.resource.config.ResourceProperties
 import com.seeddestiny.freedom.resource.exception.RESOURCE_NOT_FOUND
 import com.seeddestiny.freedom.resource.repository.MaterialRepository
 import com.seeddestiny.freedom.resource.repository.ResourceRepository
@@ -32,6 +33,10 @@ class ResourcePublicController {
     @Autowired
     private lateinit var materialRepository: MaterialRepository
 
+    @Autowired
+    private lateinit var resourceProperties: ResourceProperties
+
+
     /**
      * 1. 取得 Resource 主要路徑
      */
@@ -53,7 +58,7 @@ class ResourcePublicController {
             "title" to resource.title,
             "mainFile" to mapOf(
                 "filename" to originalFilename,
-                "url" to "/public/resource/download/resource/${resource.id}"
+                "url" to "${resourceProperties.downloadFileDomain}/public/resource/download/resource/${resource.id}"
             )
         )
 
@@ -84,7 +89,7 @@ class ResourcePublicController {
             mapOf(
                 "materialId" to material.id,
                 "filename" to originalFilename,
-                "url" to "/public/resource/download/material/${material.id}"
+                "url" to "${resourceProperties.downloadFileDomain}/public/resource/download/material/${material.id}"
             )
         }
 
@@ -113,7 +118,7 @@ class ResourcePublicController {
             }
             else -> throw SeedException(RESOURCE_NOT_FOUND, "type" to type)
         }
-
+        logger.info("File path: $filePath")
         if (filePath.isNullOrEmpty()) {
              throw SeedException(RESOURCE_NOT_FOUND, "detail" to "File path is empty")
         }

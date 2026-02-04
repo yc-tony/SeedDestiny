@@ -8,5 +8,6 @@ import org.springframework.stereotype.Component
 @Data
 @Component
 data class ResourceProperties (
-    var uploadFilePath: String = "./"
+    var uploadFilePath: String = "./",
+    var downloadFileDomain: String = "http://localhost:8080"
 )

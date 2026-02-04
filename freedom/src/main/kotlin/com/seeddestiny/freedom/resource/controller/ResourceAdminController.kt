@@ -222,7 +222,7 @@ class ResourceAdminController {
     fun getAllResources(): ApiResponseOutput {
         val resources = resourceRepository.findAll()
         val resourceOutput = resources.map { resource ->
-            resource.filePath = "/public/resource/download/resource/${resource.id}"
+            resource.filePath = "${resourceProperties.downloadFileDomain}/public/resource/download/resource/${resource.id}"
             resource
         }
         return ApiResponseOutput(data = resourceOutput)
@@ -232,7 +232,7 @@ class ResourceAdminController {
     fun getAllMaterialsByResource(@PathVariable resourceId: String): ApiResponseOutput {
         val materials = materialRepository.findAllByReferenceId(resourceId)
         val materialOutput = materials.map { material ->
-            material.filePath = "/public/resource/download/material/${material.id}"
+            material.filePath = "${resourceProperties.downloadFileDomain}/public/resource/download/material/${material.id}"
             material
         }
         return ApiResponseOutput(data = materialOutput)

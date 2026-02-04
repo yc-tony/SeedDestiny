@@ -9,6 +9,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 /**
  * 通用安全配置
@@ -35,7 +38,8 @@ class SecurityConfig {
                         "/assets/**",
                         "/favicon.ico",
                         "/**.svg",
-                        "/images/**"
+                        "/images/**",
+                        "/public/resource/download/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             }
@@ -52,6 +56,7 @@ class SecurityConfig {
                     )
                 }
             }
+            .cors { it.configurationSource(corsConfigurationSource()) }  // 啟用 CORS
             .csrf { it.disable() }  // 停用 CSRF（API 模式）
             .headers { headers ->
                 headers.frameOptions { it.sameOrigin() }           // 允許 iframe（H2 Console 需要）
@@ -63,5 +68,25 @@ class SecurityConfig {
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
+    }
+
+    /**
+     * CORS 設定，允許前端跨來源請求
+     */
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration()
+        configuration.allowedOrigins = listOf(
+            "http://localhost:3001",  // 前端開發環境
+            "http://localhost:3000"   // 其他可能的前端端口
+        )
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        configuration.allowedHeaders = listOf("*")
+        configuration.allowCredentials = true
+        configuration.maxAge = 3600L
+
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
     }
 }
