@@ -155,8 +155,12 @@ function ResourceDetail() {
                  {/* Replace this with actual ModelViewer when we have valid URLs */}
                  <h3>3D Model Preview</h3>
                  <p>File URL: {resource.filePath}</p>
-                 <div className="model-viewer-wrapper" style={{ height: '500px', width: '100%', background: '#f0f0f0' }}>
-                    <ModelViewer url={resource.filePath} fileType={resource.fileType} />
+                 <div className="model-viewer-wrapper" style={{ height: '350px', width: '100%', maxWidth: '500px', margin: '0 auto', background: '#f0f0f0', borderRadius: '8px' }}>
+                    <ModelViewer
+                      url={resource.filePath}
+                      fileType={resource.fileType}
+                      materialUrls={materials.map(m => m.filePath).filter(Boolean)}
+                    />
                  </div>
              </div>
         </div>
