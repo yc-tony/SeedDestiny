@@ -7,7 +7,10 @@ import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "resource")
+@Table(
+    name = "resource",
+    indexes = [Index(name = "idx_resource_file_type", columnList = "file_type")]
+)
 data class Resource(
     @Id
     @GenericGenerator(name = "system-uuid", strategy = "uuid2")
