@@ -39,7 +39,10 @@ class SecurityConfig {
                         "/favicon.ico",
                         "/**.svg",
                         "/images/**",
-                        "/public/resource/download/**"
+                        "/public/resource/download/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html"
                     ).permitAll()
                     .anyRequest().authenticated()
             }
