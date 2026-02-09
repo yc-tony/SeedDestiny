@@ -118,6 +118,44 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/label/linkChildren/{parentlabelid}:
+    post:
+      tags:
+      - label-admin-controller
+      operationId: linkChildrenLabels
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              format: int64
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/label/createOrUpdate:
+    post:
+      tags:
+      - label-admin-controller
+      operationId: updateLabel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Label'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
   /public/resource/{resourceId}/info:
     get:
       tags:
@@ -211,6 +249,36 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/label/nextLayers:
+    get:
+      tags:
+      - label-admin-controller
+      operationId: getNextLayerLabels
+      parameters:
+      - name: labelKey
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/label/all:
+    get:
+      tags:
+      - label-admin-controller
+      operationId: getAllLabels
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
 components:
   schemas:
     ApiResponseOutput:
@@ -224,6 +292,25 @@ components:
           type: string
         data:
           type: object
+    Label:
+      required:
+      - level
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        level:
+          type: integer
+          format: int32
+        createdDate:
+          type: string
+          format: date-time
+        updatedDate:
+          type: string
+          format: date-time
   securitySchemes:
     bearerAuth:
       type: http
