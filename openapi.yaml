@@ -1,0 +1,231 @@
+openapi: 3.0.1
+info:
+  title: Freedom API
+  description: Freedom Project API Documentation
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+security:
+- bearerAuth: []
+paths:
+  /admin/resource/update/resource/{resourceId}:
+    put:
+      tags:
+      - resource-admin-controller
+      operationId: updateResource
+      parameters:
+      - name: resourceId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: title
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/resource/update/material/{materialId}:
+    put:
+      tags:
+      - resource-admin-controller
+      operationId: updateMaterial
+      parameters:
+      - name: materialId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: title
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/resource/upload/resource:
+    post:
+      tags:
+      - resource-admin-controller
+      operationId: uploadResource
+      parameters:
+      - name: resourceId
+        in: query
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/resource/upload/material:
+    post:
+      tags:
+      - resource-admin-controller
+      operationId: uploadMaterial
+      parameters:
+      - name: resourceId
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: materialId
+        in: query
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /public/resource/{resourceId}/info:
+    get:
+      tags:
+      - resource-public-controller
+      operationId: getResourceInfo
+      parameters:
+      - name: resourceId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /public/resource/{resourceId}/assets:
+    get:
+      tags:
+      - resource-public-controller
+      operationId: getResourceAssets
+      parameters:
+      - name: resourceId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /public/resource/download/{type}/{id}:
+    get:
+      tags:
+      - resource-public-controller
+      operationId: downloadFile
+      parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /private/account/info:
+    get:
+      tags:
+      - account-private-controller
+      operationId: getAccountInfo
+      responses:
+        "200":
+          description: OK
+  /admin/resource/materials/{resourceId}:
+    get:
+      tags:
+      - resource-admin-controller
+      operationId: getAllMaterialsByResource
+      parameters:
+      - name: resourceId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/resource/all:
+    get:
+      tags:
+      - resource-admin-controller
+      operationId: getAllResources
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+components:
+  schemas:
+    ApiResponseOutput:
+      required:
+      - code
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

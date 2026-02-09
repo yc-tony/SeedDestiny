@@ -69,6 +69,28 @@ jwt:
   secret: kira-yamato
   expiration: 3600  # 1 hour in milliseconds
 
+# SpringDoc / Swagger OpenAPI 設定
+springdoc:
+  api-docs:
+    # 自定義 OpenAPI JSON 文件的路徑 (預設是 /v3/api-docs)
+    path: /api-docs
+    # 是否啟用 OpenAPI 文件功能
+    enabled: true
+  swagger-ui:
+    # 自定義 Swagger UI 的存取路徑 (預設是 /swagger-ui/index.html)
+    path: /swagger-ui.html
+    # 是否啟用 Swagger UI
+    enabled: true
+    # 讓 Swagger UI 記住上次的授權資訊 (例如 JWT Token)
+    persist-authorization: true
+    # 設定文件展開方式 (none, list, full)
+    doc-expansion: none
+    # 排序方式 (按路徑 alpha, 或是按 method)
+    operations-sorter: method
+  # 啟動時預先載入 OpenAPI 定義，確保第一次存取時速度更快
+  pre-loading-enabled: true
+  # 輸出 JSON 時進行格式化（比較好讀）
+  writer-with-default-pretty-printer: true
 
 seed:
   resource:
