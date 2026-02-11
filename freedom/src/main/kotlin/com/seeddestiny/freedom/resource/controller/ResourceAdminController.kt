@@ -3,6 +3,10 @@ package com.seeddestiny.freedom.resource.controller
 import com.seeddestiny.freedom.common.exception.SeedException
 import com.seeddestiny.freedom.common.model.ApiResponseOutput
 import com.seeddestiny.freedom.common.utils.logger
+import com.seeddestiny.freedom.label.exception.LABEL_NOT_FOUND
+import com.seeddestiny.freedom.label.model.LabelMap
+import com.seeddestiny.freedom.label.repository.LabelMapRepository
+import com.seeddestiny.freedom.label.repository.LabelRepository
 import com.seeddestiny.freedom.resource.config.ResourceProperties
 import com.seeddestiny.freedom.resource.exception.FILE_NAME_IS_NOT_VALID
 import com.seeddestiny.freedom.resource.exception.MATERIAL_FILE_NOT_FOUND
@@ -42,6 +46,13 @@ class ResourceAdminController {
 
     @Autowired
     private lateinit var materialRepository: MaterialRepository
+
+    @Autowired
+    private lateinit var labelMapRepository: LabelMapRepository
+
+    @Autowired
+    private lateinit var labelRepository: LabelRepository
+
 
     /**
      * 這段要上傳3D模型的檔案
@@ -222,7 +233,8 @@ class ResourceAdminController {
     fun getAllResources(): ApiResponseOutput {
         val resources = resourceRepository.findAll()
         val resourceOutput = resources.map { resource ->
-            resource.filePath = "${resourceProperties.downloadFileDomain}/public/resource/download/resource/${resource.id}"
+            resource.filePath =
+                "${resourceProperties.downloadFileDomain}/public/resource/download/resource/${resource.id}"
             resource
         }
         return ApiResponseOutput(data = resourceOutput)
@@ -232,9 +244,47 @@ class ResourceAdminController {
     fun getAllMaterialsByResource(@PathVariable resourceId: String): ApiResponseOutput {
         val materials = materialRepository.findAllByReferenceId(resourceId)
         val materialOutput = materials.map { material ->
-            material.filePath = "${resourceProperties.downloadFileDomain}/public/resource/download/material/${material.id}"
+            material.filePath =
+                "${resourceProperties.downloadFileDomain}/public/resource/download/material/${material.id}"
             material
         }
         return ApiResponseOutput(data = materialOutput)
+    }
+
+    @GetMapping("/labels/{resourceId}")
+    fun getAllLabelsByResource(@PathVariable resourceId: String): ApiResponseOutput {
+        val labelMaps = labelMapRepository.findByResourceId(resourceId)
+        val labelIds = labelMaps.mapNotNull { it.labelId }
+        val labels = labelRepository.findAllById(labelIds)
+        return ApiResponseOutput(data = labels)
+    }
+
+
+    @PostMapping("/addLabel/{resourceId}")
+    fun addLabelToResource(
+        @PathVariable resourceId: String,
+        @RequestParam("labelId") labelId: Long
+    ): ApiResponseOutput {
+        resourceRepository.findByIdOrNull(resourceId)
+            ?: throw SeedException(RESOURCE_NOT_FOUND, "resourceId" to resourceId)
+
+        labelRepository.findByIdOrNull(labelId)
+            ?: throw SeedException(LABEL_NOT_FOUND, "labelId" to labelId)
+
+        val labelMap = LabelMap(labelId = labelId, resourceId = resourceId)
+        labelMapRepository.saveAndFlush(labelMap)
+
+        return ApiResponseOutput(data = labelMap)
+    }
+
+    @DeleteMapping("/removeLabel/{resourceId}")
+    fun removeLabelFromResource(
+        @PathVariable resourceId: String,
+        @RequestParam("labelId") labelId: Long
+    ): ApiResponseOutput {
+        val labelMap = labelMapRepository.findByResourceIdAndLabelId(resourceId, labelId)?.apply {
+            labelMapRepository.delete(this)
+        }
+        return ApiResponseOutput(data = labelMap?.id)
     }
 }

@@ -5,3 +5,4 @@ import org.springframework.http.HttpStatus
 
 val LABEL_KEY_EXIST = ErrorCode(HttpStatus.BAD_REQUEST, "label-0001", "label key already exists: %{labelKey}")
 val LABEL_NAME_IS_NULL = ErrorCode(HttpStatus.BAD_REQUEST, "label-0002", "label name cannot be null")
+val LABEL_NOT_FOUND = ErrorCode(HttpStatus.NOT_FOUND, "label-0003", "Label %{labelId} not found")

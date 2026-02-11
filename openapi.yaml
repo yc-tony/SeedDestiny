@@ -118,6 +118,30 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/resource/addLabel/{resourceId}:
+    post:
+      tags:
+      - resource-admin-controller
+      operationId: addLabelToResource
+      parameters:
+      - name: resourceId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: labelId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
   /admin/label/linkChildren/{parentLabelId}:
     post:
       tags:
@@ -243,6 +267,24 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/resource/labels/{resourceId}:
+    get:
+      tags:
+      - resource-admin-controller
+      operationId: getAllLabelsByResource
+      parameters:
+      - name: resourceId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
   /admin/resource/all:
     get:
       tags:
@@ -278,6 +320,30 @@ paths:
       tags:
       - label-admin-controller
       operationId: getAllLabels
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/resource/removeLabel/{resourceId}:
+    delete:
+      tags:
+      - resource-admin-controller
+      operationId: removeLabelFromResource
+      parameters:
+      - name: resourceId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: labelId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         "200":
           description: OK

@@ -25,8 +25,8 @@ data class LabelMap(
     @Column(name = "child_label_id")
     var childLabelId: Long? = null,
 
-    @Column(name = "resource_id", length = 100)
-    var resourceId: Long? = null,
+    @Column(name = "resource_id", length = 128)
+    var resourceId: String? = null,
 
     @Column(name = "created_date", nullable = false, updatable = false)
     @CreationTimestamp

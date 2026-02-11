@@ -10,4 +10,6 @@ interface LabelMapRepository : JpaRepository<LabelMap, Long> {
     fun findByLabelIdAndChildLabelId(labelId: Long, childLabelId: Long): LabelMap?
     fun findByLabelId(labelId: Long): List<LabelMap>
     fun findByChildLabelId(childLabelId: Long): List<LabelMap>
+    fun findByResourceIdAndLabelId(resourceId: String, labelId: Long): LabelMap?
+    fun findByResourceId(resourceId: String): List<LabelMap>
 }
