@@ -118,12 +118,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
-  /admin/label/linkChildren/{parentlabelid}:
+  /admin/label/linkChildren/{parentLabelId}:
     post:
       tags:
       - label-admin-controller
       operationId: linkChildrenLabels
-      parameters: []
+      parameters:
+      - name: parentLabelId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
@@ -279,12 +285,24 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
-  /admin/label/unlinkChildren/{parentlabelid}/{childlabelid}:
+  /admin/label/unlinkChildren/{parentLabelId}/{childLabelId}:
     delete:
       tags:
       - label-admin-controller
       operationId: unlinkChildrenLabels
-      parameters: []
+      parameters:
+      - name: parentLabelId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: childLabelId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         "200":
           description: OK
@@ -292,12 +310,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
-  /admin/label/delete/{labelid}:
+  /admin/label/delete/{labelId}:
     delete:
       tags:
       - label-admin-controller
       operationId: deleteLabel
-      parameters: []
+      parameters:
+      - name: labelId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         "200":
           description: OK

@@ -78,12 +78,12 @@ class LabelAdminController {
             if (existingLabel != null) {
                 throw SeedException(LABEL_KEY_EXIST, "labelKey" to name)
             }
-            
+
             return labelRepository.saveAndFlush(label).asResponseOutput()
         }
     }
 
-    @PostMapping("/linkChildren/{parentlabelid}")
+    @PostMapping("/linkChildren/{parentLabelId}")
     fun linkChildrenLabels(@PathVariable parentLabelId: Long, @RequestBody childLabelId: Long): ApiResponseOutput {
         labelMapRepository.findByLabelIdAndChildLabelId(parentLabelId, childLabelId)?.let {
             return ApiResponseOutput(data = it.id)
@@ -98,7 +98,7 @@ class LabelAdminController {
 
     }
 
-    @DeleteMapping("/unlinkChildren/{parentlabelid}/{childlabelid}")
+    @DeleteMapping("/unlinkChildren/{parentLabelId}/{childLabelId}")
     fun unlinkChildrenLabels(@PathVariable parentLabelId: Long, @PathVariable childLabelId: Long): ApiResponseOutput {
         val map = labelMapRepository.findByLabelIdAndChildLabelId(parentLabelId, childLabelId)?.apply {
             labelMapRepository.delete(this)
@@ -106,7 +106,7 @@ class LabelAdminController {
         return ApiResponseOutput(data = map?.id)
     }
 
-    @DeleteMapping("/delete/{labelid}")
+    @DeleteMapping("/delete/{labelId}")
     fun deleteLabel(@PathVariable labelId: Long): ApiResponseOutput {
         labelMapRepository.findByLabelId(labelId).forEach {
             logger.info("Deleting label map: {}", it)
@@ -114,7 +114,7 @@ class LabelAdminController {
         }
 
         labelMapRepository.findByChildLabelId(labelId).forEach {
-            logger.info("Deleting label map: {}", it)
+            logger.info("Deleting label parent map: {}", it)
             labelMapRepository.delete(it)
         }
 

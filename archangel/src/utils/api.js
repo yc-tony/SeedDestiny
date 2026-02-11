@@ -189,6 +189,19 @@ export const getAllMaterialsByResource = async (token, refreshToken, resourceId)
 };
 
 // Label APIs
+export const getNextLayerLabels = async (token, refreshToken, labelKey = null) => {
+  const api = createApiClient(token, refreshToken);
+  const params = labelKey ? `?labelKey=${encodeURIComponent(labelKey)}` : '';
+  const response = await api.get(`/admin/label/nextLayers${params}`);
+  return response.data;
+};
+
+export const unlinkChildrenLabels = async (token, refreshToken, parentLabelId, childLabelId) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.delete(`/admin/label/unlinkChildren/${parentLabelId}/${childLabelId}`);
+  return response.data;
+};
+
 export const getAllLabels = async (token, refreshToken) => {
   const api = createApiClient(token, refreshToken);
   const response = await api.get('/admin/label/all');
@@ -204,5 +217,15 @@ export const createOrUpdateLabel = async (token, refreshToken, label) => {
 export const deleteLabel = async (token, refreshToken, labelId) => {
   const api = createApiClient(token, refreshToken);
   const response = await api.delete(`/admin/label/delete/${labelId}`);
+  return response.data;
+};
+
+export const linkChildrenLabels = async (token, refreshToken, parentLabelId, childLabelId) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.post(`/admin/label/linkChildren/${parentLabelId}`, childLabelId, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
   return response.data;
 };
