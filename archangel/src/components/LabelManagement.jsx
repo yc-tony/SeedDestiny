@@ -12,7 +12,6 @@ function LabelManagement() {
   const [formData, setFormData] = useState({ id: null, name: '', level: 0 });
   const [successMessage, setSuccessMessage] = useState('');
   const [viewMode, setViewMode] = useState('all'); // 'all' or 'tree'
-  const [selectedLabel, setSelectedLabel] = useState(null);
   const [linkFormData, setLinkFormData] = useState({ parentId: '', childId: '' });
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -391,13 +390,6 @@ function LabelManagement() {
                           style={{ padding: '0.3rem 0.8rem', fontSize: '0.85em', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                         >
                           編輯
-                        </button>
-                        <button
-                          onClick={() => setSelectedLabel(label)}
-                          className="btn-secondary"
-                          style={{ padding: '0.3rem 0.8rem', fontSize: '0.85em', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#4299e1' }}
-                        >
-                          查看
                         </button>
                         <button
                           onClick={() => handleDelete(label.id)}
