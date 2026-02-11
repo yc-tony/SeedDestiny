@@ -200,6 +200,12 @@ export const deleteMaterial = async (token, refreshToken, materialId) => {
   return response.data;
 };
 
+export const deleteAllMarkedFiles = async (token, refreshToken) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.delete('/admin/resource/deleteAllFile');
+  return response.data;
+};
+
 // Label APIs
 export const getNextLayerLabels = async (token, refreshToken, labelKey = null) => {
   const api = createApiClient(token, refreshToken);

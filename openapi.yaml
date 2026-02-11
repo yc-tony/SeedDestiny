@@ -351,6 +351,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/resource/deleteAllFile:
+    delete:
+      tags:
+      - resource-admin-controller
+      operationId: deleteAllFile
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
   /admin/resource/delete/resource/{resourceId}:
     delete:
       tags:

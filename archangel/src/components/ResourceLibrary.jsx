@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllResources, uploadResource } from '../utils/api';
+import { getAllResources, uploadResource, deleteAllMarkedFiles } from '../utils/api';
 import { useAuth } from '../store/authStore';
 import ModelViewer from './ModelViewer';
 
@@ -11,6 +11,7 @@ function ResourceLibrary() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [housekeeping, setHousekeeping] = useState(false);
 
   const { token, refreshToken } = useAuth();
   const navigate = useNavigate();
@@ -62,6 +63,28 @@ function ResourceLibrary() {
     }
   };
 
+  const handleHousekeeping = async () => {
+    if (!confirm('確定要刪除所有標記為刪除的檔案嗎？此操作無法復原。')) {
+      return;
+    }
+
+    try {
+      setHousekeeping(true);
+      const response = await deleteAllMarkedFiles(token, refreshToken);
+      if (response && response.data) {
+        const { deletedCount, deletedFiles } = response.data;
+        alert(`成功刪除 ${deletedCount} 個檔案\n${deletedFiles.join('\n')}`);
+      } else {
+        alert('清理完成');
+      }
+    } catch (err) {
+      console.error("Housekeeping failed", err);
+      alert("清理失敗");
+    } finally {
+      setHousekeeping(false);
+    }
+  };
+
   return (
     <div className="resource-library">
       {uploading && (
@@ -70,11 +93,27 @@ function ResourceLibrary() {
            <div className="loading-text">Uploading...</div>
         </div>
       )}
+      {housekeeping && (
+        <div className="spinner-overlay">
+           <div className="spinner"></div>
+           <div className="loading-text">Cleaning up...</div>
+        </div>
+      )}
       <div className="library-header">
         <h2>3D Resource Library</h2>
-        <button className="btn-primary" onClick={() => setShowUpload(!showUpload)}>
-          {showUpload ? 'Cancel Upload' : 'Upload New Resource'}
-        </button>
+        <div className="header-buttons">
+          <button className="btn-primary" onClick={() => setShowUpload(!showUpload)}>
+            {showUpload ? 'Cancel Upload' : 'Upload New Resource'}
+          </button>
+          <button
+            className="btn-housekeeping"
+            onClick={handleHousekeeping}
+            disabled={housekeeping}
+            title="Clean up all marked files"
+          >
+            🧹 Clean Up Not Used Files
+          </button>
+        </div>
       </div>
 
       {showUpload && (
