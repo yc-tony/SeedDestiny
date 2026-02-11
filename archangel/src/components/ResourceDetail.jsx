@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getAllResources, getAllMaterialsByResource, updateResource, updateMaterial, uploadResource, uploadMaterial } from '../utils/api';
+import { getAllResources, getAllMaterialsByResource, updateResource, updateMaterial, uploadResource, uploadMaterial, getAllLabels, getLabelsByResource, addLabelToResource, removeLabelFromResource } from '../utils/api';
 import { useAuth } from '../store/authStore';
 import ModelViewer from './ModelViewer';
 
@@ -17,8 +17,15 @@ function ResourceDetail() {
   const [uploadMaterialFile, setUploadMaterialFile] = useState(null);
   const [processing, setProcessing] = useState(false);
 
+  // Label management states
+  const [allLabels, setAllLabels] = useState([]);
+  const [resourceLabels, setResourceLabels] = useState([]);
+  const [showAddLabel, setShowAddLabel] = useState(false);
+  const [labelSearchText, setLabelSearchText] = useState('');
+
   useEffect(() => {
     fetchData();
+    fetchAllLabels();
   }, [id]);
 
   const fetchData = async () => {
@@ -40,6 +47,10 @@ function ResourceDetail() {
 
         const matResponse = await getAllMaterialsByResource(token, refreshToken, id);
         setMaterials(matResponse.data);
+
+        // Fetch labels for this resource
+        const labelsResponse = await getLabelsByResource(token, refreshToken, id);
+        setResourceLabels(labelsResponse.data || []);
       } else {
         // Handle not found
         console.error("Resource not found");
@@ -48,6 +59,15 @@ function ResourceDetail() {
       console.error("Failed to fetch details", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllLabels = async () => {
+    try {
+      const response = await getAllLabels(token, refreshToken);
+      setAllLabels(response.data || []);
+    } catch (err) {
+      console.error("Failed to fetch all labels", err);
     }
   };
 
@@ -117,6 +137,47 @@ function ResourceDetail() {
       }
   };
 
+  const handleAddLabel = async (labelId) => {
+      try {
+          setProcessing(true);
+          await addLabelToResource(token, refreshToken, id, labelId);
+          fetchData();
+          setLabelSearchText('');
+      } catch (err) {
+          console.error("Failed to add label", err);
+      } finally {
+          setProcessing(false);
+      }
+  };
+
+  const handleRemoveLabel = async (labelId) => {
+      try {
+          setProcessing(true);
+          await removeLabelFromResource(token, refreshToken, id, labelId);
+          fetchData();
+      } catch (err) {
+          console.error("Failed to remove label", err);
+      } finally {
+          setProcessing(false);
+      }
+  };
+
+  // Filter labels based on search text
+  const getFilteredLabels = () => {
+      if (!labelSearchText.trim()) {
+          return allLabels;
+      }
+      return allLabels.filter(label =>
+          label.name && label.name.toLowerCase().includes(labelSearchText.toLowerCase())
+      );
+  };
+
+  // Get available labels (not already added to resource)
+  const getAvailableLabels = () => {
+      const resourceLabelIds = resourceLabels.map(label => label.id);
+      return getFilteredLabels().filter(label => !resourceLabelIds.includes(label.id));
+  };
+
   if (loading) return <div>Loading...</div>;
   if (!resource) return <div>Resource not found</div>;
 
@@ -171,6 +232,72 @@ function ResourceDetail() {
                 <input type="file" onChange={handleResourceFileUpdate} />
             </label>
         </div>
+      </div>
+
+      <div className="labels-section section">
+          <h3>Labels</h3>
+
+          <div className="current-labels">
+              {resourceLabels.length > 0 ? (
+                  <div className="labels-list">
+                      {resourceLabels.map(label => (
+                          <div key={label.id} className="label-tag">
+                              <span>{label.name}</span>
+                              <button
+                                  className="remove-label-btn"
+                                  onClick={() => handleRemoveLabel(label.id)}
+                                  title="Remove label"
+                              >
+                                  ×
+                              </button>
+                          </div>
+                      ))}
+                  </div>
+              ) : (
+                  <p className="no-labels">No labels assigned</p>
+              )}
+          </div>
+
+          <div className="add-label-section">
+              <button
+                  className="btn-secondary"
+                  onClick={() => setShowAddLabel(!showAddLabel)}
+              >
+                  {showAddLabel ? 'Cancel' : '+ Add Label'}
+              </button>
+
+              {showAddLabel && (
+                  <div className="add-label-form">
+                      <input
+                          type="text"
+                          placeholder="Search labels..."
+                          value={labelSearchText}
+                          onChange={(e) => setLabelSearchText(e.target.value)}
+                          className="label-search-input"
+                      />
+
+                      <div className="available-labels-list">
+                          {getAvailableLabels().length > 0 ? (
+                              getAvailableLabels().map(label => (
+                                  <div
+                                      key={label.id}
+                                      className="available-label-item"
+                                      onClick={() => handleAddLabel(label.id)}
+                                  >
+                                      {label.name}
+                                  </div>
+                              ))
+                          ) : (
+                              <p className="no-results">
+                                  {labelSearchText.trim()
+                                      ? 'No matching labels found'
+                                      : 'All labels have been added'}
+                              </p>
+                          )}
+                      </div>
+                  </div>
+              )}
+          </div>
       </div>
 
       <div className="materials-section">

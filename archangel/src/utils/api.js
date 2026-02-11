@@ -229,3 +229,35 @@ export const linkChildrenLabels = async (token, refreshToken, parentLabelId, chi
   });
   return response.data;
 };
+
+// Resource Label APIs
+export const getLabelsByResource = async (token, refreshToken, resourceId) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.get(`/admin/resource/labels/${resourceId}`);
+  return response.data;
+};
+
+export const addLabelToResource = async (token, refreshToken, resourceId, labelId) => {
+  const api = createApiClient(token, refreshToken);
+  const params = new URLSearchParams();
+  params.append('labelId', labelId);
+  const response = await api.post(`/admin/resource/addLabel/${resourceId}`, params, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+  return response.data;
+};
+
+export const removeLabelFromResource = async (token, refreshToken, resourceId, labelId) => {
+  const api = createApiClient(token, refreshToken);
+  const params = new URLSearchParams();
+  params.append('labelId', labelId);
+  const response = await api.delete(`/admin/resource/removeLabel/${resourceId}`, {
+    data: params,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+  return response.data;
+};

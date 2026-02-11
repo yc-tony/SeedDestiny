@@ -348,3 +348,138 @@ input[type="file"] {
     display: flex;
     gap: 0.5rem;
 }
+
+/* Label Management Styles */
+.labels-section {
+    margin-bottom: 2rem;
+}
+
+.current-labels {
+    margin-bottom: 1rem;
+}
+
+.labels-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.label-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #646cff;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.remove-label-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.remove-label-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.no-labels {
+    color: #888;
+    font-style: italic;
+}
+
+.add-label-section {
+    margin-top: 1rem;
+}
+
+.add-label-form {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.label-search-input {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    background-color: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+}
+
+.label-search-input:focus {
+    outline: none;
+    border-color: #646cff;
+}
+
+.available-labels-list {
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.available-label-item {
+    padding: 0.8rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.available-label-item:hover {
+    background-color: rgba(100, 108, 255, 0.2);
+    border-color: #646cff;
+}
+
+.no-results {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
+@media (prefers-color-scheme: light) {
+    .label-tag {
+        background-color: #646cff;
+    }
+
+    .add-label-form {
+        background-color: rgba(0, 0, 0, 0.02);
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .label-search-input {
+        background-color: white;
+        border-color: #ddd;
+        color: #333;
+    }
+
+    .available-label-item {
+        background-color: rgba(0, 0, 0, 0.02);
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .available-label-item:hover {
+        background-color: rgba(100, 108, 255, 0.1);
+        border-color: #646cff;
+    }
+}
