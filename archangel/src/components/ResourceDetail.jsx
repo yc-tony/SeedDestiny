@@ -16,6 +16,8 @@ function ResourceDetail() {
   const [resourceTitle, setResourceTitle] = useState('');
   const [uploadMaterialFiles, setUploadMaterialFiles] = useState([]);
   const [processing, setProcessing] = useState(false);
+  const [editingMaterialId, setEditingMaterialId] = useState(null);
+  const [editingMaterialTitle, setEditingMaterialTitle] = useState('');
 
   // Label management states
   const [allLabels, setAllLabels] = useState([]);
@@ -120,12 +122,33 @@ function ResourceDetail() {
       try {
           setProcessing(true);
           await updateMaterial(token, refreshToken, materialId, newTitle);
+          setEditingMaterialId(null);
+          setEditingMaterialTitle('');
           fetchData();
       } catch (err) {
           console.error("Failed to update material", err);
       } finally {
           setProcessing(false);
       }
+  };
+
+  const startEditingMaterial = (material) => {
+      setEditingMaterialId(material.id);
+      setEditingMaterialTitle(material.title || getFilenameFromPath(material.filePath));
+  };
+
+  const cancelEditingMaterial = () => {
+      setEditingMaterialId(null);
+      setEditingMaterialTitle('');
+  };
+
+  const getFilenameFromPath = (filePath) => {
+      if (!filePath) return 'Unknown';
+      const parts = filePath.split('/');
+      const filename = parts[parts.length - 1];
+      // Remove UUID prefix if exists (format: UUID_originalname)
+      const withoutUUID = filename.replace(/^[a-f0-9-]{36}_/i, '');
+      return withoutUUID;
   };
 
   const handleMaterialFileUpdate = async (materialId, file) => {
@@ -303,10 +326,10 @@ function ResourceDetail() {
           </div>
       </div>
 
-      <div className="materials-section">
+      <div className="materials-section section">
           <h3>Materials</h3>
 
-          <div className="add-material section">
+          <div className="add-material">
               <h4>Add Material</h4>
               <form onSubmit={handleMaterialUpload} className="form-row">
                   <div className="file-input-wrapper">
@@ -329,24 +352,80 @@ function ResourceDetail() {
               </form>
           </div>
 
-          <div className="materials-list">
-              {materials.map(material => (
-                  <div key={material.id} className="material-item section">
-                      <div className="material-info">
-                          <strong>{material.title || 'Untitled Material'}</strong>
-                          <p>{material.fileType}</p>
-                      </div>
-                      <div className="material-actions">
-                         {/* Material editing logic similar to resource */}
-                         <label className="btn-secondary file-input-label" style={{fontSize: '0.8em'}}>
-                            Update File
-                            <input type="file" onChange={(e) => {
-                                if(e.target.files[0]) handleMaterialFileUpdate(material.id, e.target.files[0]);
-                            }} />
-                         </label>
-                      </div>
-                  </div>
-              ))}
+          <div className="materials-table-container">
+              {materials.length > 0 ? (
+                  <table className="materials-table">
+                      <thead>
+                          <tr>
+                              <th>Title</th>
+                              <th>File Type</th>
+                              <th>File Name</th>
+                              <th>Actions</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {materials.map(material => (
+                              <tr key={material.id}>
+                                  <td>
+                                      {editingMaterialId === material.id ? (
+                                          <input
+                                              type="text"
+                                              value={editingMaterialTitle}
+                                              onChange={(e) => setEditingMaterialTitle(e.target.value)}
+                                              className="material-title-input"
+                                              autoFocus
+                                          />
+                                      ) : (
+                                          <span>{material.title || getFilenameFromPath(material.filePath)}</span>
+                                      )}
+                                  </td>
+                                  <td>{material.fileType}</td>
+                                  <td className="filename-cell">{getFilenameFromPath(material.filePath)}</td>
+                                  <td>
+                                      <div className="material-actions">
+                                          {editingMaterialId === material.id ? (
+                                              <>
+                                                  <button
+                                                      className="btn-save"
+                                                      onClick={() => handleMaterialUpdate(material.id, editingMaterialTitle)}
+                                                  >
+                                                      Save
+                                                  </button>
+                                                  <button
+                                                      className="btn-cancel"
+                                                      onClick={cancelEditingMaterial}
+                                                  >
+                                                      Cancel
+                                                  </button>
+                                              </>
+                                          ) : (
+                                              <>
+                                                  <button
+                                                      className="btn-edit"
+                                                      onClick={() => startEditingMaterial(material)}
+                                                  >
+                                                      Edit Title
+                                                  </button>
+                                                  <label className="btn-update-file">
+                                                      Update File
+                                                      <input
+                                                          type="file"
+                                                          onChange={(e) => {
+                                                              if(e.target.files[0]) handleMaterialFileUpdate(material.id, e.target.files[0]);
+                                                          }}
+                                                      />
+                                                  </label>
+                                              </>
+                                          )}
+                                      </div>
+                                  </td>
+                              </tr>
+                          ))}
+                      </tbody>
+                  </table>
+              ) : (
+                  <p className="no-materials">No materials uploaded yet</p>
+              )}
           </div>
       </div>
     </div>

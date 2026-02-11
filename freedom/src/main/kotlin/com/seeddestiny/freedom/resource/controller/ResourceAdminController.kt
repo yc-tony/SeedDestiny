@@ -171,6 +171,7 @@ class ResourceAdminController {
             filePath = filePath.toString()
         )
             ?: Material(
+                title = originalFilename,
                 referenceId = resourceId,
                 fileType = materialFileType,
                 filePath = filePath.toString()
