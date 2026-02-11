@@ -14,7 +14,7 @@ function ResourceDetail() {
   const [loading, setLoading] = useState(true);
   const [isEditingResource, setIsEditingResource] = useState(false);
   const [resourceTitle, setResourceTitle] = useState('');
-  const [uploadMaterialFile, setUploadMaterialFile] = useState(null);
+  const [uploadMaterialFiles, setUploadMaterialFiles] = useState([]);
   const [processing, setProcessing] = useState(false);
 
   // Label management states
@@ -100,11 +100,14 @@ function ResourceDetail() {
 
   const handleMaterialUpload = async (e) => {
       e.preventDefault();
-      if (!uploadMaterialFile) return;
+      if (!uploadMaterialFiles || uploadMaterialFiles.length === 0) return;
       try {
           setProcessing(true);
-          await uploadMaterial(token, refreshToken, uploadMaterialFile, id);
-          setUploadMaterialFile(null);
+          // Upload each file sequentially
+          for (const file of uploadMaterialFiles) {
+              await uploadMaterial(token, refreshToken, file, id);
+          }
+          setUploadMaterialFiles([]);
           fetchData();
       } catch (err) {
           console.error("Failed to upload material", err);
@@ -308,12 +311,21 @@ function ResourceDetail() {
               <form onSubmit={handleMaterialUpload} className="form-row">
                   <div className="file-input-wrapper">
                     <label className="file-input-label">
-                        Choose Material File
-                        <input type="file" onChange={(e) => setUploadMaterialFile(e.target.files[0])} />
+                        Choose Material Files
+                        <input
+                            type="file"
+                            multiple
+                            onChange={(e) => setUploadMaterialFiles(Array.from(e.target.files))}
+                        />
                     </label>
-                    {uploadMaterialFile && <span className="file-name">{uploadMaterialFile.name}</span>}
+                    {uploadMaterialFiles.length > 0 && (
+                        <span className="file-name">
+                            {uploadMaterialFiles.length} file{uploadMaterialFiles.length > 1 ? 's' : ''} selected
+                            {uploadMaterialFiles.length <= 3 && `: ${uploadMaterialFiles.map(f => f.name).join(', ')}`}
+                        </span>
+                    )}
                   </div>
-                  <button type="submit" disabled={!uploadMaterialFile}>Upload Material</button>
+                  <button type="submit" disabled={uploadMaterialFiles.length === 0}>Upload Material{uploadMaterialFiles.length > 1 ? 's' : ''}</button>
               </form>
           </div>
 
