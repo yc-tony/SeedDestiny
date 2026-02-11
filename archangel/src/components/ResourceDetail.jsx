@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getAllResources, getAllMaterialsByResource, updateResource, updateMaterial, uploadResource, uploadMaterial, getAllLabels, getLabelsByResource, addLabelToResource, removeLabelFromResource } from '../utils/api';
+import { getAllResources, getAllMaterialsByResource, updateResource, updateMaterial, uploadResource, uploadMaterial, getAllLabels, getLabelsByResource, addLabelToResource, removeLabelFromResource, deleteResource, deleteMaterial } from '../utils/api';
 import { useAuth } from '../store/authStore';
 import ModelViewer from './ModelViewer';
 
@@ -188,6 +188,38 @@ function ResourceDetail() {
       }
   };
 
+  const handleDeleteResource = async () => {
+      if (!window.confirm('Are you sure you want to delete this resource? This will also delete all associated materials.')) {
+          return;
+      }
+      try {
+          setProcessing(true);
+          await deleteResource(token, refreshToken, id);
+          navigate('/');
+      } catch (err) {
+          console.error("Failed to delete resource", err);
+          alert("Failed to delete resource. Please try again.");
+      } finally {
+          setProcessing(false);
+      }
+  };
+
+  const handleDeleteMaterial = async (materialId) => {
+      if (!window.confirm('Are you sure you want to delete this material?')) {
+          return;
+      }
+      try {
+          setProcessing(true);
+          await deleteMaterial(token, refreshToken, materialId);
+          fetchData();
+      } catch (err) {
+          console.error("Failed to delete material", err);
+          alert("Failed to delete material. Please try again.");
+      } finally {
+          setProcessing(false);
+      }
+  };
+
   // Filter labels based on search text
   const getFilteredLabels = () => {
       if (!labelSearchText.trim()) {
@@ -232,6 +264,7 @@ function ResourceDetail() {
                 <div className="title-row">
                     <h2>{resource.title || 'Untitled Resource'}</h2>
                     <button onClick={() => setIsEditingResource(true)}>Edit Title</button>
+                    <button onClick={handleDeleteResource} className="btn-delete">Delete Resource</button>
                 </div>
             )}
         </div>
@@ -359,7 +392,6 @@ function ResourceDetail() {
                           <tr>
                               <th>Title</th>
                               <th>File Type</th>
-                              <th>File Name</th>
                               <th>Actions</th>
                           </tr>
                       </thead>
@@ -380,7 +412,6 @@ function ResourceDetail() {
                                       )}
                                   </td>
                                   <td>{material.fileType}</td>
-                                  <td className="filename-cell">{getFilenameFromPath(material.filePath)}</td>
                                   <td>
                                       <div className="material-actions">
                                           {editingMaterialId === material.id ? (
@@ -415,6 +446,12 @@ function ResourceDetail() {
                                                           }}
                                                       />
                                                   </label>
+                                                  <button
+                                                      className="btn-delete"
+                                                      onClick={() => handleDeleteMaterial(material.id)}
+                                                  >
+                                                      Delete
+                                                  </button>
                                               </>
                                           )}
                                       </div>

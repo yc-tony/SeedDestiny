@@ -188,6 +188,18 @@ export const getAllMaterialsByResource = async (token, refreshToken, resourceId)
   return response.data;
 };
 
+export const deleteResource = async (token, refreshToken, resourceId) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.delete(`/admin/resource/delete/resource/${resourceId}`);
+  return response.data;
+};
+
+export const deleteMaterial = async (token, refreshToken, materialId) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.delete(`/admin/resource/delete/material/${materialId}`);
+  return response.data;
+};
+
 // Label APIs
 export const getNextLayerLabels = async (token, refreshToken, labelKey = null) => {
   const api = createApiClient(token, refreshToken);
