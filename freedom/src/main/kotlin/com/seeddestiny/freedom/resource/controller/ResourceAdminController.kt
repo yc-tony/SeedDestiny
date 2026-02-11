@@ -343,4 +343,38 @@ class ResourceAdminController {
         materialRepository.delete(material)
         return ApiResponseOutput(data = materialId)
     }
+
+    @DeleteMapping("/deleteAllFile")
+    fun deleteAllFile(): ApiResponseOutput {
+        // 刪除所有檔案名稱前面有 DELETE_ 的檔案
+        val uploadDir = File(resourceProperties.uploadFilePath)
+        var deletedCount = 0
+        val deletedFiles = mutableListOf<String>()
+
+        if (uploadDir.exists() && uploadDir.isDirectory) {
+            uploadDir.walkTopDown().forEach { file ->
+                if (file.isFile && file.name.startsWith("DELETE_")) {
+                    try {
+                        val fileName = file.name
+                        if (file.delete()) {
+                            deletedCount++
+                            deletedFiles.add(fileName)
+                            logger.info("Deleted file: ${file.absolutePath}")
+                        } else {
+                            logger.warn("Failed to delete file: ${file.absolutePath}")
+                        }
+                    } catch (e: Exception) {
+                        logger.error("Error deleting file: ${file.absolutePath}", e)
+                    }
+                }
+            }
+        }
+
+        return ApiResponseOutput(
+            data = mapOf(
+                "deletedCount" to deletedCount,
+                "deletedFiles" to deletedFiles
+            )
+        )
+    }
 }
