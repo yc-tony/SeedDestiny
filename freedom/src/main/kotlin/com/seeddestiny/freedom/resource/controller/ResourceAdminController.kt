@@ -8,10 +8,7 @@ import com.seeddestiny.freedom.label.model.LabelMap
 import com.seeddestiny.freedom.label.repository.LabelMapRepository
 import com.seeddestiny.freedom.label.repository.LabelRepository
 import com.seeddestiny.freedom.resource.config.ResourceProperties
-import com.seeddestiny.freedom.resource.exception.FILE_NAME_IS_NOT_VALID
-import com.seeddestiny.freedom.resource.exception.MATERIAL_FILE_NOT_FOUND
-import com.seeddestiny.freedom.resource.exception.RESOURCE_FILE_NOT_FOUND
-import com.seeddestiny.freedom.resource.exception.RESOURCE_NOT_FOUND
+import com.seeddestiny.freedom.resource.exception.*
 import com.seeddestiny.freedom.resource.model.Material
 import com.seeddestiny.freedom.resource.model.MaterialFileType
 import com.seeddestiny.freedom.resource.model.Resource
@@ -287,5 +284,63 @@ class ResourceAdminController {
             labelMapRepository.delete(this)
         }
         return ApiResponseOutput(data = labelMap?.id)
+    }
+
+    @DeleteMapping("/delete/resource/{resourceId}")
+    fun deleteResource(@PathVariable resourceId: String): ApiResponseOutput {
+        val resource = resourceRepository.findByIdOrNull(resourceId)
+            ?: throw SeedException(RESOURCE_NOT_FOUND, "resourceId" to resourceId)
+
+        val materials = materialRepository.findAllByReferenceId(resourceId)
+        materials.forEach { material ->
+            // 處理材質檔案刪除，檔案更改名稱前面加 DELETE_
+            material.filePath?.let { filePath ->
+                val file = File(filePath)
+                if (file.exists()) {
+                    val fileName = file.name
+                    val fileParent = file.parentFile
+                    val newFileName = "DELETE_$fileName"
+                    val renamedFile = File(fileParent, newFileName)
+                    file.renameTo(renamedFile)
+                }
+            }
+            materialRepository.delete(material)
+        }
+
+        // 處理資源檔案刪除，檔案更改名稱前面加 DELETE_
+        resource.filePath?.let { filePath ->
+            val file = File(filePath)
+            if (file.exists()) {
+                val fileName = file.name
+                val fileParent = file.parentFile
+                val newFileName = "DELETE_$fileName"
+                val renamedFile = File(fileParent, newFileName)
+                file.renameTo(renamedFile)
+            }
+        }
+
+        resourceRepository.delete(resource)
+        return ApiResponseOutput(data = resourceId)
+    }
+
+    @DeleteMapping("/delete/material/{materialId}")
+    fun deleteMaterial(@PathVariable materialId: String): ApiResponseOutput {
+        val material = materialRepository.findByIdOrNull(materialId)
+            ?: throw SeedException(MATERIAL_NOT_FOUND, "materialId" to materialId)
+
+        // 處理材質檔案刪除，檔案更改名稱前面加 DELETE_
+        material.filePath?.let { filePath ->
+            val file = File(filePath)
+            if (file.exists()) {
+                val fileName = file.name
+                val fileParent = file.parentFile
+                val newFileName = "DELETE_$fileName"
+                val renamedFile = File(fileParent, newFileName)
+                file.renameTo(renamedFile)
+            }
+        }
+
+        materialRepository.delete(material)
+        return ApiResponseOutput(data = materialId)
     }
 }
