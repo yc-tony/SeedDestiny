@@ -78,8 +78,7 @@ class LabelAdminController {
             if (existingLabel != null) {
                 throw SeedException(LABEL_KEY_EXIST, "labelKey" to name)
             }
-
-            label.level = 0
+            
             return labelRepository.saveAndFlush(label).asResponseOutput()
         }
     }

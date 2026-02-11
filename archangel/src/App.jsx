@@ -50,6 +50,12 @@ function AppContent() {
             </ProtectedRoute>
          } />
 
+         <Route path="/labels" element={
+           <ProtectedRoute>
+             <LabelManagement />
+           </ProtectedRoute>
+         } />
+
          <Route path="*" element={<Navigate to="/" replace />} />
        </Routes>
     </div>
@@ -57,17 +63,6 @@ function AppContent() {
 }
 
 function App() {
-  return (
-    <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </Router>
-  );
-}
-
-export default App;
-ction App() {
   return (
     <Router>
       <AuthProvider>
