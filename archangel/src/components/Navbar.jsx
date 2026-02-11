@@ -17,6 +17,7 @@ function Navbar() {
       </div>
       <div className="navbar-menu">
         <Link to="/" className="navbar-item">3D Resource Library</Link>
+        <Link to="/labels" className="navbar-item">Label Management</Link>
         {/* Future expansion items can go here */}
       </div>
       <div className="navbar-end">

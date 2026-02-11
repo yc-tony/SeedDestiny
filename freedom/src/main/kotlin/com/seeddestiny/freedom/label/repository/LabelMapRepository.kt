@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository
 interface LabelMapRepository : JpaRepository<LabelMap, Long> {
 
     fun findByLabelIdAndChildLabelId(labelId: Long, childLabelId: Long): LabelMap?
+    fun findByLabelId(labelId: Long): List<LabelMap>
+    fun findByChildLabelId(childLabelId: Long): List<LabelMap>
 }

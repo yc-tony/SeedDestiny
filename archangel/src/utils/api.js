@@ -187,3 +187,22 @@ export const getAllMaterialsByResource = async (token, refreshToken, resourceId)
   const response = await api.get(`/admin/resource/materials/${resourceId}`);
   return response.data;
 };
+
+// Label APIs
+export const getAllLabels = async (token, refreshToken) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.get('/admin/label/all');
+  return response.data;
+};
+
+export const createOrUpdateLabel = async (token, refreshToken, label) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.post('/admin/label/createOrUpdate', label);
+  return response.data;
+};
+
+export const deleteLabel = async (token, refreshToken, labelId) => {
+  const api = createApiClient(token, refreshToken);
+  const response = await api.delete(`/admin/label/delete/${labelId}`);
+  return response.data;
+};

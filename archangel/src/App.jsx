@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import ResourceLibrary from './components/ResourceLibrary';
 import ResourceDetail from './components/ResourceDetail';
+import LabelManagement from './components/LabelManagement';
 import Navbar from './components/Navbar';
 import './App.css';
 
@@ -56,6 +57,17 @@ function AppContent() {
 }
 
 function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
+  );
+}
+
+export default App;
+ction App() {
   return (
     <Router>
       <AuthProvider>
