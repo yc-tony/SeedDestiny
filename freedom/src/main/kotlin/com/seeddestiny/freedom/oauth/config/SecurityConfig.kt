@@ -33,9 +33,11 @@ class SecurityConfig {
                 authorize
                     .requestMatchers(
                         "/",
+                        "/adminPage",
                         "/h2-console/**",
                         "/**.html",
                         "/assets/**",
+                        "/admin-assets/**",
                         "/favicon.ico",
                         "/**.svg",
                         "/images/**",

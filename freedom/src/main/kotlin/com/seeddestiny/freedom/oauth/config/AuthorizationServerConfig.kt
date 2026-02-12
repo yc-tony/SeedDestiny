@@ -68,6 +68,7 @@ class AuthorizationServerConfig(
             .oidc(Customizer.withDefaults())
 
         http
+            .securityMatcher("/oauth2/**", "/.well-known/**")  // 只處理 OAuth2 相關的請求
             .oauth2ResourceServer { resourceServer ->
                 resourceServer.jwt(Customizer.withDefaults())
             }
