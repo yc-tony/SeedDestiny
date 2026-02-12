@@ -33,6 +33,8 @@ function ResourceDetail() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      console.log('[ResourceDetail] fetchData started, id:', id);
+
       // We need to find the specific resource.
       // The API `getAllResources` returns a list.
       // Ideally we should have `getResourceById`.
@@ -40,27 +42,37 @@ function ResourceDetail() {
       // Based on controller, there isn't a get-single endpoint visible in the snippet,
       // but `getAllResources` returns all.
 
+      console.log('[ResourceDetail] Fetching all resources...');
       const resResponse = await getAllResources(token, refreshToken);
       const foundResource = resResponse.data.find(r => r.id === id);
+      console.log('[ResourceDetail] Found resource:', foundResource);
 
       if (foundResource) {
-        setResource(foundResource);
-        setResourceTitle(foundResource.title || '');
-
+        console.log('[ResourceDetail] Fetching materials...');
         const matResponse = await getAllMaterialsByResource(token, refreshToken, id);
-        setMaterials(matResponse.data);
+        console.log('[ResourceDetail] Materials response:', matResponse.data);
 
         // Fetch labels for this resource
+        console.log('[ResourceDetail] Fetching labels...');
         const labelsResponse = await getLabelsByResource(token, refreshToken, id);
+        console.log('[ResourceDetail] Labels response:', labelsResponse.data);
+
+        // 設定所有狀態 - 確保 materials 在 resource 之前或同時設定
+        console.log('[ResourceDetail] Setting states...');
+        setMaterials(matResponse.data);
         setResourceLabels(labelsResponse.data || []);
+        setResource(foundResource);
+        setResourceTitle(foundResource.title || '');
+        console.log('[ResourceDetail] States set complete');
       } else {
         // Handle not found
-        console.error("Resource not found");
+        console.error("[ResourceDetail] Resource not found");
       }
     } catch (err) {
-      console.error("Failed to fetch details", err);
+      console.error("[ResourceDetail] Failed to fetch details", err);
     } finally {
       setLoading(false);
+      console.log('[ResourceDetail] fetchData finished, loading set to false');
     }
   };
 
@@ -275,11 +287,21 @@ function ResourceDetail() {
                  {/* Replace this with actual ModelViewer when we have valid URLs */}
                  <h3>3D Model Preview</h3>
                  <p>File URL: {resource.filePath}</p>
+                 <p>Materials count: {materials.length}</p>
+                 {console.log('[ResourceDetail] Rendering ModelViewer with materials:', materials.map(m => ({ url: m.filePath, fileType: m.fileType })))}
                  <div className="model-viewer-wrapper" style={{ height: '350px', width: '100%', maxWidth: '500px', margin: '0 auto', background: '#f0f0f0', borderRadius: '8px' }}>
                     <ModelViewer
+                      key={`model-${resource.id}-${materials.length}`}
                       url={resource.filePath}
                       fileType={resource.fileType}
-                      materialUrls={materials.map(m => m.filePath).filter(Boolean)}
+                      materials={materials.map(m => {
+                        let url = m.filePath;
+                        return {
+                          url: url,
+                          fileType: m.fileType,
+                          title: m.title
+                        };
+                      }).filter(m => m.url)}
                     />
                  </div>
              </div>
@@ -392,6 +414,7 @@ function ResourceDetail() {
                           <tr>
                               <th>Title</th>
                               <th>File Type</th>
+                              <th>File Url</th>
                               <th>Actions</th>
                           </tr>
                       </thead>
@@ -412,6 +435,7 @@ function ResourceDetail() {
                                       )}
                                   </td>
                                   <td>{material.fileType}</td>
+                                  <td>{material.filePath}</td>
                                   <td>
                                       <div className="material-actions">
                                           {editingMaterialId === material.id ? (
