@@ -419,6 +419,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/cache/resources/all:
+    delete:
+      tags:
+      - cache-admin-controller
+      operationId: evictAllResourcesCache
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
 components:
   schemas:
     ApiResponseOutput:

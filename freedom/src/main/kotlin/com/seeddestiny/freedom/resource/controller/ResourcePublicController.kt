@@ -2,19 +2,12 @@ package com.seeddestiny.freedom.resource.controller
 
 import com.seeddestiny.freedom.common.exception.SeedException
 import com.seeddestiny.freedom.common.model.ApiResponseOutput
+import com.seeddestiny.freedom.common.model.asResponseOutput
 import com.seeddestiny.freedom.common.utils.logger
-import com.seeddestiny.freedom.label.repository.LabelMapRepository
-import com.seeddestiny.freedom.label.repository.LabelRepository
-import com.seeddestiny.freedom.resource.config.ResourceProperties
 import com.seeddestiny.freedom.resource.exception.RESOURCE_NOT_FOUND
-import com.seeddestiny.freedom.resource.model.ResourcePublicOutputs
-import com.seeddestiny.freedom.resource.model.asLabelOutput
-import com.seeddestiny.freedom.resource.model.asMaterialOutput
-import com.seeddestiny.freedom.resource.model.asResourcePublicOutput
 import com.seeddestiny.freedom.resource.repository.MaterialRepository
 import com.seeddestiny.freedom.resource.repository.ResourceRepository
-import com.seeddestiny.freedom.resource.utils.convertToMaterialUrl
-import com.seeddestiny.freedom.resource.utils.convertToResourceUrl
+import com.seeddestiny.freedom.resource.service.ResourceService
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.FileSystemResource
@@ -39,40 +32,16 @@ class ResourcePublicController {
     private lateinit var resourceRepository: ResourceRepository
 
     @Autowired
+    private lateinit var resourceService: ResourceService
+
+    @Autowired
     private lateinit var materialRepository: MaterialRepository
 
-    @Autowired
-    private lateinit var resourceProperties: ResourceProperties
-
-    @Autowired
-    private lateinit var labelMapRepository: LabelMapRepository
-
-    @Autowired
-    private lateinit var labelRepository: LabelRepository
 
 
-    /**
-     * 1. 取得 Resource 主要路徑
-     */
     @GetMapping("/all")
     fun getAllResourceInfo(): ApiResponseOutput {
-        val resources = resourceRepository.findAllByLabelDisplay()
-
-        val result = resources.map { resource ->
-            resource.asResourcePublicOutput().apply {
-                this.resourceUrl = resource.id?.convertToResourceUrl(resourceProperties.downloadFileDomain)
-                this.labels = labelRepository.findAllByResourceId(resource.id!!).map {
-                    it.asLabelOutput()
-                }
-                this.materials = materialRepository.findAllByReferenceId(resource.id!!).map {
-                    it.asMaterialOutput().apply {
-                        this.url = this.materialId?.convertToMaterialUrl(resourceProperties.downloadFileDomain)
-                    }
-                }
-            }
-        }
-
-        return ApiResponseOutput(data = ResourcePublicOutputs(total = resources.size, records = result))
+        return resourceService.getResourcePublicAll().asResponseOutput()
     }
 
 

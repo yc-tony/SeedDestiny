@@ -64,7 +64,7 @@ spring:
       enabled: true
       path: /h2-console
   jpa:
-#    database-platform: org.hibernate.dialect.MySQLDialect
+    #    database-platform: org.hibernate.dialect.MySQLDialect
     database-platform: org.hibernate.dialect.H2Dialect
 
 # JWT Configuration
@@ -99,3 +99,13 @@ seed:
   resource:
     upload-file-path: ./data/model
     download-file-domain: http://localhost:8080
+
+  cache:
+    # 單個 Resource 快取設定
+    max-size: 1000
+    # 預設快取過期時間（秒）
+    default-expire: 300
+
+    # 快取名稱定義
+    custom-cache-names:
+      RESOURCE_PUBLIC_ALL: 1800

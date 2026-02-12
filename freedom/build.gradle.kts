@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-cache")
 	implementation("org.springframework.security:spring-security-oauth2-authorization-server")
 	implementation("com.mysql:mysql-connector-j")
 	implementation("com.h2database:h2")
@@ -49,6 +50,9 @@ dependencies {
 
 	// BCrypt for password encoding
 	implementation("org.springframework.security:spring-security-crypto")
+
+	// Guava Cache
+	implementation("com.google.guava:guava:33.0.0-jre")
 
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
