@@ -51,8 +51,8 @@ dependencies {
 	// BCrypt for password encoding
 	implementation("org.springframework.security:spring-security-crypto")
 
-	// Guava Cache
-	implementation("com.google.guava:guava:33.0.0-jre")
+	// Caffeine Cache
+	implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")

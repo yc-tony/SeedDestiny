@@ -1,13 +1,11 @@
 package com.seeddestiny.freedom.resource.config
 
-import com.google.common.cache.CacheBuilder
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.seeddestiny.freedom.common.utils.logger
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
-import org.springframework.cache.concurrent.ConcurrentMapCache
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager
+import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.concurrent.TimeUnit
@@ -22,28 +20,17 @@ class CacheConfig {
 
     @Bean
     fun cacheManager(): CacheManager {
-        return object : ConcurrentMapCacheManager() {
-            override fun createConcurrentMapCache(name: String): Cache {
-                val expireTtl = cacheProperties.customCacheNames.get(name) ?: cacheProperties.defaultExpire
-                return generateConcurrentMapCache(name, expireTtl)
+        val cacheManager = object : CaffeineCacheManager() {
+            override fun createNativeCaffeineCache(name: String): com.github.benmanes.caffeine.cache.Cache<Any, Any> {
+                val expireTtl = cacheProperties.customCacheNames[name] ?: cacheProperties.defaultExpire
+                logger.info("Creating cache for name: $name with expire: $expireTtl")
+                return Caffeine.newBuilder()
+                    .maximumSize(cacheProperties.maxSize)
+                    .expireAfterWrite(expireTtl, TimeUnit.SECONDS)
+                    .recordStats()
+                    .build()
             }
         }
-    }
-
-    private fun generateConcurrentMapCache(name: String, expire: Long): Cache {
-        logger.info("Creating cache for name: $name with expire: $expire")
-        return ConcurrentMapCache(
-            name,
-            CacheBuilder.newBuilder()
-                .maximumSize(cacheProperties.maxSize)
-                .expireAfterWrite(
-                    expire,
-                    TimeUnit.SECONDS
-                )
-                .recordStats()
-                .build<Any, Any>()
-                .asMap(),
-            false
-        )
+        return cacheManager
     }
 }
