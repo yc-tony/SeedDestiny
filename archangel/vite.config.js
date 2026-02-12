@@ -1,9 +1,26 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { renameSync } from 'fs'
+import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'rename-index-to-admin',
+      closeBundle() {
+        const indexPath = resolve(__dirname, 'dist/index.html')
+        const adminPath = resolve(__dirname, 'dist/admin.html')
+        try {
+          renameSync(indexPath, adminPath)
+          console.log('✓ Renamed index.html to admin.html')
+        } catch (err) {
+          console.error('Failed to rename index.html:', err)
+        }
+      }
+    }
+  ],
   build: {
     rollupOptions: {
       input: {
