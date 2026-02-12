@@ -15,6 +15,8 @@ import com.seeddestiny.freedom.resource.model.Resource
 import com.seeddestiny.freedom.resource.model.ResourceFileType
 import com.seeddestiny.freedom.resource.repository.MaterialRepository
 import com.seeddestiny.freedom.resource.repository.ResourceRepository
+import com.seeddestiny.freedom.resource.utils.convertToMaterialUrl
+import com.seeddestiny.freedom.resource.utils.convertToResourceUrl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -231,8 +233,7 @@ class ResourceAdminController {
     fun getAllResources(): ApiResponseOutput {
         val resources = resourceRepository.findAll()
         val resourceOutput = resources.map { resource ->
-            resource.filePath =
-                "${resourceProperties.downloadFileDomain}/public/resource/download/resource/${resource.id}"
+            resource.filePath = resource.id?.convertToResourceUrl(resourceProperties.downloadFileDomain)
             resource
         }
         return ApiResponseOutput(data = resourceOutput)
@@ -242,8 +243,7 @@ class ResourceAdminController {
     fun getAllMaterialsByResource(@PathVariable resourceId: String): ApiResponseOutput {
         val materials = materialRepository.findAllByReferenceId(resourceId)
         val materialOutput = materials.map { material ->
-            material.filePath =
-                "${resourceProperties.downloadFileDomain}/public/resource/download/material/${material.id}"
+            material.filePath = material.id?.convertToMaterialUrl(resourceProperties.downloadFileDomain)
             material
         }
         return ApiResponseOutput(data = materialOutput)

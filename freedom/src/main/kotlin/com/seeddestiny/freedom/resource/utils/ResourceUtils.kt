@@ -10,3 +10,11 @@ class ResourceFileTypeJpaConverter : EnumJpaConverter<ResourceFileType>()
 
 @Converter(autoApply = true)
 class MaterialFileTypeJpaConverter : EnumJpaConverter<MaterialFileType>()
+
+fun String.convertToResourceUrl(downloadFileDomain: String): String {
+    return "${downloadFileDomain}/public/resource/download/resource/${this}"
+}
+
+fun String.convertToMaterialUrl(downloadFileDomain: String): String {
+    return "${downloadFileDomain}/public/resource/download/material/${this}"
+}

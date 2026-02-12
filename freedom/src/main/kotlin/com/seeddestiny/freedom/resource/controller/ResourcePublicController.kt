@@ -3,10 +3,18 @@ package com.seeddestiny.freedom.resource.controller
 import com.seeddestiny.freedom.common.exception.SeedException
 import com.seeddestiny.freedom.common.model.ApiResponseOutput
 import com.seeddestiny.freedom.common.utils.logger
+import com.seeddestiny.freedom.label.repository.LabelMapRepository
+import com.seeddestiny.freedom.label.repository.LabelRepository
 import com.seeddestiny.freedom.resource.config.ResourceProperties
 import com.seeddestiny.freedom.resource.exception.RESOURCE_NOT_FOUND
+import com.seeddestiny.freedom.resource.model.ResourcePublicOutputs
+import com.seeddestiny.freedom.resource.model.asLabelOutput
+import com.seeddestiny.freedom.resource.model.asMaterialOutput
+import com.seeddestiny.freedom.resource.model.asResourcePublicOutput
 import com.seeddestiny.freedom.resource.repository.MaterialRepository
 import com.seeddestiny.freedom.resource.repository.ResourceRepository
+import com.seeddestiny.freedom.resource.utils.convertToMaterialUrl
+import com.seeddestiny.freedom.resource.utils.convertToResourceUrl
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.FileSystemResource
@@ -36,65 +44,37 @@ class ResourcePublicController {
     @Autowired
     private lateinit var resourceProperties: ResourceProperties
 
+    @Autowired
+    private lateinit var labelMapRepository: LabelMapRepository
+
+    @Autowired
+    private lateinit var labelRepository: LabelRepository
+
 
     /**
      * 1. 取得 Resource 主要路徑
      */
-    @GetMapping("/{resourceId}/info")
-    fun getResourceInfo(@PathVariable resourceId: String): ApiResponseOutput {
-        val resource = resourceRepository.findByIdOrNull(resourceId)
-            ?: throw SeedException(RESOURCE_NOT_FOUND, "resourceId" to resourceId)
+    @GetMapping("/all")
+    fun getAllResourceInfo(): ApiResponseOutput {
+        val resources = resourceRepository.findAllByLabelDisplay()
 
-        val filePath = resource.filePath ?: ""
-        val file = File(filePath)
-        val originalFilename = if (file.exists()) {
-             getOriginalFilename(file.name)
-        } else {
-            "unknown"
-        }
-
-        val result = mapOf(
-            "resourceId" to resource.id,
-            "title" to resource.title,
-            "mainFile" to mapOf(
-                "filename" to originalFilename,
-                "url" to "${resourceProperties.downloadFileDomain}/public/resource/download/resource/${resource.id}"
-            )
-        )
-
-        return ApiResponseOutput(data = result)
-    }
-
-    /**
-     * 2. 取得 Resource 對應的所有素材
-     */
-    @GetMapping("/{resourceId}/assets")
-    fun getResourceAssets(@PathVariable resourceId: String): ApiResponseOutput {
-        // 確認 resource 存在
-        if (!resourceRepository.existsById(resourceId)) {
-            throw SeedException(RESOURCE_NOT_FOUND, "resourceId" to resourceId)
-        }
-
-        val materials = materialRepository.findAllByReferenceId(resourceId)
-
-        val assets = materials.map { material ->
-            val filePath = material.filePath ?: ""
-            val file = File(filePath)
-            val originalFilename = if (file.exists()) {
-                getOriginalFilename(file.name)
-            } else {
-                "unknown"
+        val result = resources.map { resource ->
+            resource.asResourcePublicOutput().apply {
+                this.resourceUrl = resource.id?.convertToResourceUrl(resourceProperties.downloadFileDomain)
+                this.labels = labelRepository.findAllByResourceId(resource.id!!).map {
+                    it.asLabelOutput()
+                }
+                this.materials = materialRepository.findAllByReferenceId(resource.id!!).map {
+                    it.asMaterialOutput().apply {
+                        this.url = this.materialId?.convertToMaterialUrl(resourceProperties.downloadFileDomain)
+                    }
+                }
             }
-
-            mapOf(
-                "materialId" to material.id,
-                "filename" to originalFilename,
-                "url" to "${resourceProperties.downloadFileDomain}/public/resource/download/material/${material.id}"
-            )
         }
 
-        return ApiResponseOutput(data = assets)
+        return ApiResponseOutput(data = ResourcePublicOutputs(total = resources.size, records = result))
     }
+
 
     /**
      * 3. 檔案下載
@@ -111,21 +91,23 @@ class ResourcePublicController {
                     ?: throw SeedException(RESOURCE_NOT_FOUND, "id" to id)
                 resource.filePath
             }
+
             "material" -> {
                 val material = materialRepository.findByIdOrNull(id)
                     ?: throw SeedException(RESOURCE_NOT_FOUND, "id" to id)
                 material.filePath
             }
+
             else -> throw SeedException(RESOURCE_NOT_FOUND, "type" to type)
         }
         logger.info("File path: $filePath")
         if (filePath.isNullOrEmpty()) {
-             throw SeedException(RESOURCE_NOT_FOUND, "detail" to "File path is empty")
+            throw SeedException(RESOURCE_NOT_FOUND, "detail" to "File path is empty")
         }
 
         val file = File(filePath)
         if (!file.exists()) {
-             throw SeedException(RESOURCE_NOT_FOUND, "detail" to "File not found on disk")
+            throw SeedException(RESOURCE_NOT_FOUND, "detail" to "File not found on disk")
         }
 
         val originalFilename = getOriginalFilename(file.name)
@@ -133,7 +115,10 @@ class ResourcePublicController {
 
         // 設定 Response Header
         response.contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"$encodedFilename\"; filename*=UTF-8''$encodedFilename")
+        response.setHeader(
+            HttpHeaders.CONTENT_DISPOSITION,
+            "inline; filename=\"$encodedFilename\"; filename*=UTF-8''$encodedFilename"
+        )
         response.setHeader(HttpHeaders.CONTENT_LENGTH, file.length().toString())
 
         // 串流輸出

@@ -186,42 +186,6 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
-  /public/resource/{resourceId}/info:
-    get:
-      tags:
-      - resource-public-controller
-      operationId: getResourceInfo
-      parameters:
-      - name: resourceId
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/ApiResponseOutput'
-  /public/resource/{resourceId}/assets:
-    get:
-      tags:
-      - resource-public-controller
-      operationId: getResourceAssets
-      parameters:
-      - name: resourceId
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/ApiResponseOutput'
   /public/resource/download/{type}/{id}:
     get:
       tags:
@@ -241,6 +205,18 @@ paths:
       responses:
         "200":
           description: OK
+  /public/resource/all:
+    get:
+      tags:
+      - resource-public-controller
+      operationId: getAllResourceInfo
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiResponseOutput'
   /private/account/info:
     get:
       tags:

@@ -21,4 +21,11 @@ interface LabelRepository : JpaRepository<Label, Long> {
     fun findChildrenLabels(parentLabelName: String): List<Label>
 
     fun findByName(name: String): Optional<Label>
+
+    @Query(
+        "SELECT l.* FROM label l " +
+                "JOIN label_map lm ON lm.label_id = l.id " +
+                "WHERE lm.resource_id = :resourceId", nativeQuery = true
+    )
+    fun findAllByResourceId(resourceId: String): List<Label>
 }
