@@ -1,0 +1,335 @@
+/* ============================================
+   Label Management
+   ============================================ */
+
+/* Page Description */
+.label-management-description {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+  font-size: 0.875rem;
+}
+
+/* Form Cards */
+.label-form-card {
+  margin-bottom: var(--space-8);
+  padding: var(--space-6);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.label-form-card h3 {
+  margin-top: 0;
+  margin-bottom: var(--space-5);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Form Grid Layouts */
+.label-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.label-link-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: var(--space-4);
+  align-items: flex-end;
+}
+
+.label-link-grid .form-group {
+  margin-bottom: 0;
+}
+
+/* Search and View Toggle */
+.label-controls {
+  margin-bottom: var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.label-search-input {
+  flex: 1;
+  min-width: 250px;
+}
+
+.view-toggle-group {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Table Styles */
+.label-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.label-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.label-table thead {
+  background-color: var(--gray-50);
+}
+
+.label-table th {
+  padding: var(--space-4);
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-light);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.label-table td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.label-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.label-table tbody tr:hover {
+  background-color: var(--gray-50);
+}
+
+.label-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Label Name Column */
+.label-name-cell {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Label Tags (Parent/Child Labels) */
+.label-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.label-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.85em;
+  transition: all 0.2s ease;
+}
+
+.label-tag.parent-tag {
+  background-color: var(--gray-600);
+  color: white;
+}
+
+.label-tag.child-tag {
+  background-color: var(--gray-700);
+  color: white;
+}
+
+.label-tag:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.label-tag-remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--danger-light);
+  cursor: pointer;
+  padding: 0;
+  font-size: 1.1em;
+  line-height: 1;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.label-tag-remove-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: none;
+  box-shadow: none;
+}
+
+.label-empty-state {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* Action Buttons */
+.label-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.label-actions .btn-primary,
+.label-actions .btn-danger {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.85em;
+}
+
+/* Tree View */
+.label-tree-container {
+  padding: var(--space-6);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.label-tree-container h3 {
+  margin-top: 0;
+  margin-bottom: var(--space-5);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.label-tree-item {
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-secondary);
+  transition: all 0.2s ease;
+}
+
+.label-tree-item:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-medium);
+}
+
+.label-tree-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.label-tree-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.label-tree-title strong {
+  font-size: 1.1em;
+  color: var(--text-primary);
+}
+
+.label-tree-meta {
+  color: var(--text-tertiary);
+  font-size: 0.9em;
+}
+
+.label-tree-relations {
+  margin-top: var(--space-3);
+  padding-left: var(--space-4);
+}
+
+.label-tree-section-title {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  margin-bottom: var(--space-2);
+  font-weight: 500;
+}
+
+.label-tree-section-title.parents::before {
+  content: '↑ ';
+}
+
+.label-tree-section-title.children::before {
+  content: '↓ ';
+}
+
+/* Empty State */
+.label-table-empty {
+  padding: var(--space-12);
+  text-align: center;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .label-form-grid,
+  .label-link-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .label-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .label-search-input {
+    width: 100%;
+  }
+
+  .view-toggle-group {
+    width: 100%;
+  }
+
+  .view-toggle-group button {
+    flex: 1;
+  }
+
+  .label-table-container {
+    overflow-x: auto;
+  }
+
+  .label-tree-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .label-actions {
+    width: 100%;
+  }
+}
+
+/* Scrollbar Styling */
+.label-table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.label-table-container::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: var(--radius-sm);
+}
+
+.label-table-container::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: var(--radius-sm);
+}
+
+.label-table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}

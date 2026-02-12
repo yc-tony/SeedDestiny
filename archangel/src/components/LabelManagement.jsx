@@ -2,6 +2,7 @@ import { getAllLabels, getNextLayerLabels, createOrUpdateLabel, deleteLabel, lin
 import { useState, useEffect } from 'react';
 import { useAuth } from '../store/authStore';
 import '../App.css';
+import './LabelManagement.css';
 
 function LabelManagement() {
   const { token, refreshToken } = useAuth();
@@ -162,7 +163,7 @@ function LabelManagement() {
   return (
     <div className="section">
       <h2>Label 管理系統</h2>
-      <p style={{ color: '#888', marginBottom: '1.5rem' }}>
+      <p className="label-management-description">
         註：Label 之間的父子關聯與 Level 無關，Level 僅作為標記使用（預設為 0）
       </p>
 
@@ -170,10 +171,10 @@ function LabelManagement() {
       {successMessage && <div className="message success">{successMessage}</div>}
 
       {/* Create/Update Label Form */}
-      <div style={{ marginBottom: '2rem', padding: '1.5rem', border: '1px solid #444', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+      <div className="label-form-card">
         <h3>{formData.id ? '編輯 Label' : '新增 Label'}</h3>
         <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div className="label-form-grid">
             <div className="form-group">
               <label>名稱 *</label>
               <input
@@ -182,7 +183,6 @@ function LabelManagement() {
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
                 placeholder="輸入 Label 名稱"
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #444', background: '#333', color: 'white' }}
               />
             </div>
             <div className="form-group">
@@ -192,12 +192,11 @@ function LabelManagement() {
                 value={formData.level}
                 onChange={(e) => setFormData({...formData, level: e.target.value})}
                 placeholder="0"
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #444', background: '#333', color: 'white' }}
               />
             </div>
           </div>
-          <div className="button-group" style={{ display: 'flex', gap: '0.5rem' }}>
-            <button type="submit" className="btn-primary" style={{ padding: '0.5rem 1.5rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          <div className="button-group">
+            <button type="submit" className="btn-primary">
               {formData.id ? '更新' : '創建'}
             </button>
             {formData.id && (
@@ -205,7 +204,6 @@ function LabelManagement() {
                 type="button"
                 className="btn-secondary"
                 onClick={() => setFormData({ id: null, name: '', level: 0 })}
-                style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
               >
                 取消編輯
               </button>
@@ -215,16 +213,15 @@ function LabelManagement() {
       </div>
 
       {/* Link Labels Form */}
-      <div style={{ marginBottom: '2rem', padding: '1.5rem', border: '1px solid #444', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+      <div className="label-form-card">
         <h3>建立 Label 關聯</h3>
         <form onSubmit={handleLinkLabels}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'flex-end' }}>
-            <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="label-link-grid">
+            <div className="form-group">
               <label>父 Label</label>
               <select
                 value={linkFormData.parentId}
                 onChange={(e) => setLinkFormData({ ...linkFormData, parentId: e.target.value })}
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #444', background: '#333', color: 'white' }}
               >
                 <option value="">選擇父 Label</option>
                 {allLabels.map(l => (
@@ -232,12 +229,11 @@ function LabelManagement() {
                 ))}
               </select>
             </div>
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group">
               <label>子 Label</label>
               <select
                 value={linkFormData.childId}
                 onChange={(e) => setLinkFormData({ ...linkFormData, childId: e.target.value })}
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #444', background: '#333', color: 'white' }}
               >
                 <option value="">選擇子 Label</option>
                 {allLabels.map(l => (
@@ -245,7 +241,7 @@ function LabelManagement() {
                 ))}
               </select>
             </div>
-            <button type="submit" className="btn-primary" style={{ padding: '0.5rem 1.5rem', height: 'fit-content', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+            <button type="submit" className="btn-primary">
               建立關聯
             </button>
           </div>
@@ -253,26 +249,24 @@ function LabelManagement() {
       </div>
 
       {/* Search and View Mode Toggle */}
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+      <div className="label-controls">
         <input
           type="text"
+          className="label-search-input"
           placeholder="搜尋 Label（名稱或 ID）"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ flex: 1, minWidth: '200px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #444', background: '#333', color: 'white' }}
         />
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="view-toggle-group">
           <button
             onClick={() => setViewMode('all')}
             className={viewMode === 'all' ? 'btn-primary' : 'btn-secondary'}
-            style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
           >
             全部 Labels
           </button>
           <button
             onClick={() => setViewMode('tree')}
             className={viewMode === 'tree' ? 'btn-primary' : 'btn-secondary'}
-            style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
           >
             關聯視圖
           </button>
@@ -283,16 +277,16 @@ function LabelManagement() {
       {loading ? (
         <p>載入中...</p>
       ) : viewMode === 'all' ? (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <div className="label-table-container">
+          <table className="label-table">
             <thead>
-              <tr style={{ borderBottom: '2px solid #444' }}>
-                <th style={{ padding: '1rem 0.5rem' }}>ID</th>
-                <th style={{ padding: '1rem 0.5rem' }}>名稱</th>
-                <th style={{ padding: '1rem 0.5rem' }}>Level</th>
-                <th style={{ padding: '1rem 0.5rem' }}>父 Labels</th>
-                <th style={{ padding: '1rem 0.5rem' }}>子 Labels</th>
-                <th style={{ padding: '1rem 0.5rem' }}>操作</th>
+              <tr>
+                <th>ID</th>
+                <th>名稱</th>
+                <th>Level</th>
+                <th>父 Labels</th>
+                <th>子 Labels</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -300,38 +294,19 @@ function LabelManagement() {
                 const children = getChildrenLabels(label.id);
                 const parents = getParentLabels(label.id);
                 return (
-                  <tr key={label.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                    <td style={{ padding: '0.8rem 0.5rem' }}>{label.id}</td>
-                    <td style={{ padding: '0.8rem 0.5rem', fontWeight: 'bold' }}>{label.name}</td>
-                    <td style={{ padding: '0.8rem 0.5rem' }}>{label.level}</td>
-                    <td style={{ padding: '0.8rem 0.5rem' }}>
+                  <tr key={label.id}>
+                    <td>{label.id}</td>
+                    <td className="label-name-cell">{label.name}</td>
+                    <td>{label.level}</td>
+                    <td>
                       {parents.length > 0 ? (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                        <div className="label-tags-container">
                           {parents.map(parent => (
-                            <span
-                              key={parent.id}
-                              style={{
-                                padding: '0.2rem 0.5rem',
-                                background: '#4a5568',
-                                borderRadius: '4px',
-                                fontSize: '0.85em',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.3rem'
-                              }}
-                            >
+                            <span key={parent.id} className="label-tag parent-tag">
                               {parent.name}
                               <button
                                 onClick={() => handleUnlink(parent.id, label.id)}
-                                style={{
-                                  background: 'transparent',
-                                  border: 'none',
-                                  color: '#ff6b6b',
-                                  cursor: 'pointer',
-                                  padding: '0',
-                                  fontSize: '1em',
-                                  lineHeight: '1'
-                                }}
+                                className="label-tag-remove-btn"
                                 title="解除關聯"
                               >
                                 ×
@@ -340,37 +315,18 @@ function LabelManagement() {
                           ))}
                         </div>
                       ) : (
-                        <span style={{ color: '#666' }}>無</span>
+                        <span className="label-empty-state">無</span>
                       )}
                     </td>
-                    <td style={{ padding: '0.8rem 0.5rem' }}>
+                    <td>
                       {children.length > 0 ? (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                        <div className="label-tags-container">
                           {children.map(child => (
-                            <span
-                              key={child.id}
-                              style={{
-                                padding: '0.2rem 0.5rem',
-                                background: '#2d3748',
-                                borderRadius: '4px',
-                                fontSize: '0.85em',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.3rem'
-                              }}
-                            >
+                            <span key={child.id} className="label-tag child-tag">
                               {child.name}
                               <button
                                 onClick={() => handleUnlink(label.id, child.id)}
-                                style={{
-                                  background: 'transparent',
-                                  border: 'none',
-                                  color: '#ff6b6b',
-                                  cursor: 'pointer',
-                                  padding: '0',
-                                  fontSize: '1em',
-                                  lineHeight: '1'
-                                }}
+                                className="label-tag-remove-btn"
                                 title="解除關聯"
                               >
                                 ×
@@ -379,22 +335,20 @@ function LabelManagement() {
                           ))}
                         </div>
                       ) : (
-                        <span style={{ color: '#666' }}>無</span>
+                        <span className="label-empty-state">無</span>
                       )}
                     </td>
-                    <td style={{ padding: '0.8rem 0.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                    <td>
+                      <div className="label-actions">
                         <button
                           onClick={() => handleEdit(label)}
                           className="btn-primary"
-                          style={{ padding: '0.3rem 0.8rem', fontSize: '0.85em', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                         >
                           編輯
                         </button>
                         <button
                           onClick={() => handleDelete(label.id)}
-                          className="btn-secondary"
-                          style={{ padding: '0.3rem 0.8rem', fontSize: '0.85em', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#dc3545' }}
+                          className="btn-danger"
                         >
                           刪除
                         </button>
@@ -404,7 +358,7 @@ function LabelManagement() {
                 );
               }) : (
                 <tr>
-                  <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>
+                  <td colSpan="6" className="label-table-empty">
                     沒有找到 Label
                   </td>
                 </tr>
@@ -413,34 +367,32 @@ function LabelManagement() {
           </table>
         </div>
       ) : (
-        <div style={{ padding: '1.5rem', border: '1px solid #444', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+        <div className="label-tree-container">
           <h3>Label 關聯樹狀視圖</h3>
-          <div style={{ marginTop: '1rem' }}>
+          <div>
             {filteredLabels.map(label => {
               const children = getChildrenLabels(label.id);
               const parents = getParentLabels(label.id);
 
               return (
-                <div key={label.id} style={{ marginBottom: '1.5rem', padding: '1rem', border: '1px solid #555', borderRadius: '6px', background: 'rgba(255,255,255,0.02)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <div>
-                      <strong style={{ fontSize: '1.1em' }}>{label.name}</strong>
-                      <span style={{ marginLeft: '0.5rem', color: '#888', fontSize: '0.9em' }}>
+                <div key={label.id} className="label-tree-item">
+                  <div className="label-tree-header">
+                    <div className="label-tree-title">
+                      <strong>{label.name}</strong>
+                      <span className="label-tree-meta">
                         (ID: {label.id}, Level: {label.level})
                       </span>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.3rem' }}>
+                    <div className="label-actions">
                       <button
                         onClick={() => handleEdit(label)}
                         className="btn-primary"
-                        style={{ padding: '0.3rem 0.8rem', fontSize: '0.85em', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                       >
                         編輯
                       </button>
                       <button
                         onClick={() => handleDelete(label.id)}
-                        className="btn-secondary"
-                        style={{ padding: '0.3rem 0.8rem', fontSize: '0.85em', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#dc3545' }}
+                        className="btn-danger"
                       >
                         刪除
                       </button>
@@ -448,34 +400,15 @@ function LabelManagement() {
                   </div>
 
                   {parents.length > 0 && (
-                    <div style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
-                      <div style={{ color: '#aaa', fontSize: '0.9em', marginBottom: '0.3rem' }}>↑ 父 Labels:</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                    <div className="label-tree-relations">
+                      <div className="label-tree-section-title parents">父 Labels:</div>
+                      <div className="label-tags-container">
                         {parents.map(parent => (
-                          <span
-                            key={parent.id}
-                            style={{
-                              padding: '0.3rem 0.6rem',
-                              background: '#4a5568',
-                              borderRadius: '4px',
-                              fontSize: '0.9em',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.3rem'
-                            }}
-                          >
+                          <span key={parent.id} className="label-tag parent-tag">
                             {parent.name}
                             <button
                               onClick={() => handleUnlink(parent.id, label.id)}
-                              style={{
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#ff6b6b',
-                                cursor: 'pointer',
-                                padding: '0',
-                                fontSize: '1.1em',
-                                lineHeight: '1'
-                              }}
+                              className="label-tag-remove-btn"
                               title="解除關聯"
                             >
                               ×
@@ -487,34 +420,15 @@ function LabelManagement() {
                   )}
 
                   {children.length > 0 && (
-                    <div style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
-                      <div style={{ color: '#aaa', fontSize: '0.9em', marginBottom: '0.3rem' }}>↓ 子 Labels:</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                    <div className="label-tree-relations">
+                      <div className="label-tree-section-title children">子 Labels:</div>
+                      <div className="label-tags-container">
                         {children.map(child => (
-                          <span
-                            key={child.id}
-                            style={{
-                              padding: '0.3rem 0.6rem',
-                              background: '#2d3748',
-                              borderRadius: '4px',
-                              fontSize: '0.9em',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.3rem'
-                            }}
-                          >
+                          <span key={child.id} className="label-tag child-tag">
                             {child.name}
                             <button
                               onClick={() => handleUnlink(label.id, child.id)}
-                              style={{
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#ff6b6b',
-                                cursor: 'pointer',
-                                padding: '0',
-                                fontSize: '1.1em',
-                                lineHeight: '1'
-                              }}
+                              className="label-tag-remove-btn"
                               title="解除關聯"
                             >
                               ×
