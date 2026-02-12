@@ -1,51 +1,51 @@
+/* ============================================
+   Login Page
+   ============================================ */
 .login-container {
   width: 100%;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: var(--space-8);
+  background: linear-gradient(135deg, var(--primary-lighter) 0%, var(--bg-secondary) 100%);
 }
 
 .login-box {
   width: 100%;
   max-width: 450px;
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 3rem;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background-color: var(--bg-primary);
+  padding: var(--space-12);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-xl);
 }
 
 .login-box h1 {
   text-align: center;
-  margin-bottom: 0.5rem;
-  color: #646cff;
+  margin-bottom: var(--space-2);
+  color: var(--primary);
+  font-size: 2rem;
+  font-weight: 700;
 }
 
 .login-subtitle {
   text-align: center;
-  color: #888;
-  margin-bottom: 2rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-8);
+  font-size: 0.875rem;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-5);
 }
 
 .login-btn {
   width: 100%;
-  margin-top: 1rem;
-  padding: 0.8em 1.2em;
-  font-size: 1.1em;
-}
-
-@media (prefers-color-scheme: light) {
-  .login-box {
-    background-color: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  }
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  font-size: 1rem;
+  font-weight: 600;
 }
