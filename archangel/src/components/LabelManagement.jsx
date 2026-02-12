@@ -12,7 +12,6 @@ function LabelManagement() {
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({ id: null, name: '', level: 0 });
   const [successMessage, setSuccessMessage] = useState('');
-  const [viewMode, setViewMode] = useState('all'); // 'all' or 'tree'
   const [linkFormData, setLinkFormData] = useState({ parentId: '', childId: '' });
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -248,7 +247,7 @@ function LabelManagement() {
         </form>
       </div>
 
-      {/* Search and View Mode Toggle */}
+      {/* Search */}
       <div className="label-controls">
         <input
           type="text"
@@ -257,26 +256,12 @@ function LabelManagement() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <div className="view-toggle-group">
-          <button
-            onClick={() => setViewMode('all')}
-            className={viewMode === 'all' ? 'btn-primary' : 'btn-secondary'}
-          >
-            全部 Labels
-          </button>
-          <button
-            onClick={() => setViewMode('tree')}
-            className={viewMode === 'tree' ? 'btn-primary' : 'btn-secondary'}
-          >
-            關聯視圖
-          </button>
-        </div>
       </div>
 
       {/* Labels Display */}
       {loading ? (
         <p>載入中...</p>
-      ) : viewMode === 'all' ? (
+      ) : (
         <div className="label-table-container">
           <table className="label-table">
             <thead>
@@ -365,83 +350,6 @@ function LabelManagement() {
               )}
             </tbody>
           </table>
-        </div>
-      ) : (
-        <div className="label-tree-container">
-          <h3>Label 關聯樹狀視圖</h3>
-          <div>
-            {filteredLabels.map(label => {
-              const children = getChildrenLabels(label.id);
-              const parents = getParentLabels(label.id);
-
-              return (
-                <div key={label.id} className="label-tree-item">
-                  <div className="label-tree-header">
-                    <div className="label-tree-title">
-                      <strong>{label.name}</strong>
-                      <span className="label-tree-meta">
-                        (ID: {label.id}, Level: {label.level})
-                      </span>
-                    </div>
-                    <div className="label-actions">
-                      <button
-                        onClick={() => handleEdit(label)}
-                        className="btn-primary"
-                      >
-                        編輯
-                      </button>
-                      <button
-                        onClick={() => handleDelete(label.id)}
-                        className="btn-danger"
-                      >
-                        刪除
-                      </button>
-                    </div>
-                  </div>
-
-                  {parents.length > 0 && (
-                    <div className="label-tree-relations">
-                      <div className="label-tree-section-title parents">父 Labels:</div>
-                      <div className="label-tags-container">
-                        {parents.map(parent => (
-                          <span key={parent.id} className="label-tag parent-tag">
-                            {parent.name}
-                            <button
-                              onClick={() => handleUnlink(parent.id, label.id)}
-                              className="label-tag-remove-btn"
-                              title="解除關聯"
-                            >
-                              ×
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {children.length > 0 && (
-                    <div className="label-tree-relations">
-                      <div className="label-tree-section-title children">子 Labels:</div>
-                      <div className="label-tags-container">
-                        {children.map(child => (
-                          <span key={child.id} className="label-tag child-tag">
-                            {child.name}
-                            <button
-                              onClick={() => handleUnlink(label.id, child.id)}
-                              className="label-tag-remove-btn"
-                              title="解除關聯"
-                            >
-                              ×
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
         </div>
       )}
     </div>
