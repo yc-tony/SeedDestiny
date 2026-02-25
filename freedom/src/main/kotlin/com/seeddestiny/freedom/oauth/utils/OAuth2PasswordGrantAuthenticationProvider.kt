@@ -5,7 +5,6 @@ import com.seeddestiny.freedom.oauth.model.OAuth2PasswordGrantAuthenticationToke
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.core.OAuth2AccessToken
@@ -16,7 +15,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken
-import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken
 import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
 
@@ -141,17 +139,5 @@ class OAuth2PasswordGrantAuthenticationProvider(
     override fun supports(authentication: Class<*>): Boolean {
         // 聲明此 Provider 支援處理 OAuth2PasswordGrantAuthenticationToken
         return OAuth2PasswordGrantAuthenticationToken::class.java.isAssignableFrom(authentication)
-    }
-
-    /**
-     * 從 SecurityContext 中取得已驗證的 Client 資訊
-     * 在 Spring Authorization Server 流程中，Client 會先被驗證並存放在 SecurityContext
-     */
-    private fun getAuthenticatedClientElseThrowInvalidClient(): OAuth2ClientAuthenticationToken {
-        val authentication = SecurityContextHolder.getContext().authentication
-        if (authentication is OAuth2ClientAuthenticationToken && authentication.isAuthenticated) {
-            return authentication
-        }
-        throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT))
     }
 }

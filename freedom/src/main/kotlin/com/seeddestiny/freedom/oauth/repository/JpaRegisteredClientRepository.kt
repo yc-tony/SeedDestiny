@@ -5,6 +5,8 @@ import com.seeddestiny.freedom.application.repository.ApplicationRepository
 import com.seeddestiny.freedom.application.utils.getScopes
 import com.seeddestiny.freedom.common.utils.logger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient
@@ -13,22 +15,29 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.stereotype.Service
 import java.time.Duration
 
+const val REGISTERED_CLIENTS_CACHE_NAME_BY_ID = "REGISTERED_CLIENTS_CACHE_NAME_BY_ID"
+const val REGISTERED_CLIENTS_CACHE_NAME_BY_CLIENT_ID = "REGISTERED_CLIENTS_CACHE_NAME_BY_CLIENT_ID"
+
 /**
  * 基於 JPA 的註冊 Client 儲存庫
  * 將 OAuth2 的 RegisteredClient 映射到資料庫中的 Application 實體
  */
 @Service
-class JpaRegisteredClientRepository: RegisteredClientRepository {
+class JpaRegisteredClientRepository : RegisteredClientRepository {
     private val logger = logger()
 
     @Autowired
     private lateinit var applicationRepository: ApplicationRepository
+
+    @Autowired
+    private lateinit var passwordEncoder: PasswordEncoder
 
     override fun save(registeredClient: RegisteredClient) {
         // Not implemented - we manage clients through Application entity
         throw UnsupportedOperationException("Use Application entity to manage clients")
     }
 
+    @Cacheable(REGISTERED_CLIENTS_CACHE_NAME_BY_ID)
     override fun findById(id: String): RegisteredClient? {
         return try {
             val application = applicationRepository.findById(id)?.orElse(null) ?: return null
@@ -39,6 +48,7 @@ class JpaRegisteredClientRepository: RegisteredClientRepository {
         }
     }
 
+    @Cacheable(REGISTERED_CLIENTS_CACHE_NAME_BY_CLIENT_ID)
     override fun findByClientId(clientId: String): RegisteredClient? {
         return findById(clientId)
     }
@@ -58,7 +68,7 @@ class JpaRegisteredClientRepository: RegisteredClientRepository {
 
         val registeredClient = RegisteredClient.withId(application.id)
             .clientId(application.id)
-            .clientSecret(application.password)
+            .clientSecret(passwordEncoder.encode(application.password))
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
             .scopes { it.addAll(scopes) }

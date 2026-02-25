@@ -41,7 +41,7 @@ class OauthDataInitializer : CommandLineRunner {
         val application = Application(
             id = "2d5171b5-3e7f-4b08-8ab6-06d586ecef87",
             name = "test",
-            password = passwordEncoder.encode("test123"),
+            password = "test123",
             grantTypes = "password,refresh_token,client_credentials",
             oauthScopes = "public.*,private.*,admin.*",
             accessExpires = "PT5M",
