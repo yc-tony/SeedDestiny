@@ -1,6 +1,7 @@
 package com.seeddestiny.freedom.oauth.config
 
 import com.seeddestiny.freedom.account.model.Account
+import com.seeddestiny.freedom.account.model.AccountRole
 import com.seeddestiny.freedom.account.repository.AccountRepository
 import com.seeddestiny.freedom.application.model.Application
 import com.seeddestiny.freedom.application.repository.ApplicationRepository
@@ -58,7 +59,8 @@ class OauthDataInitializer : CommandLineRunner {
 
         val adminAccount = Account(
             username = "admin",
-            password = passwordEncoder.encode("admin123")
+            password = passwordEncoder.encode("admin123"),
+            role = AccountRole.ADMIN
         )
 
         accountRepository.save(adminAccount)

@@ -31,6 +31,9 @@ data class Account(
     @Column(name = "email", nullable = true, length = 255)
     var email: String? = null,
 
+    @Column(name = "role", nullable = false, length = 255, columnDefinition = "VARCHAR(255) DEFAULT 'MEMBER'")
+    var role: AccountRole? = null,
+
     @CreationTimestamp
     @Column(name = "created_date", nullable = false, updatable = false)
     var createdDate: LocalDateTime? = null,

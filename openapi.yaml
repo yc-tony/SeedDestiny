@@ -186,6 +186,60 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ApiResponseOutput'
+  /admin/account/update/profile:
+    post:
+      tags:
+      - account-admin-controller
+      operationId: updateAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccountInput'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Account'
+  /admin/account/update/password:
+    post:
+      tags:
+      - account-admin-controller
+      operationId: updatePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePasswordInput'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Account'
+  /admin/account/create:
+    post:
+      tags:
+      - account-admin-controller
+      operationId: createAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountInput'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Account'
   /public/resource/download/{type}/{id}:
     get:
       tags:
@@ -463,6 +517,78 @@ components:
         updatedDate:
           type: string
           format: date-time
+    UpdateAccountInput:
+      type: object
+      properties:
+        accountId:
+          type: string
+        phone:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - STAFF
+          - MEMBER
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - STAFF
+          - MEMBER
+        createdDate:
+          type: string
+          format: date-time
+        updatedDate:
+          type: string
+          format: date-time
+    UpdatePasswordInput:
+      type: object
+      properties:
+        accountId:
+          type: string
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
+    CreateAccountInput:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - STAFF
+          - MEMBER
   securitySchemes:
     bearerAuth:
       type: http

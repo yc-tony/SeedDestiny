@@ -2,6 +2,7 @@ package com.seeddestiny.freedom.oauth.repository
 
 import com.seeddestiny.freedom.application.model.Application
 import com.seeddestiny.freedom.application.repository.ApplicationRepository
+import com.seeddestiny.freedom.application.utils.getScopes
 import com.seeddestiny.freedom.common.utils.logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.oauth2.core.AuthorizationGrantType
@@ -46,7 +47,7 @@ class JpaRegisteredClientRepository: RegisteredClientRepository {
      * 將資料庫中的 Application 物件轉換為 OAuth2 的 RegisteredClient 物件
      */
     private fun mapToRegisteredClient(application: Application): RegisteredClient {
-        val scopes = application.oauthScopes?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
+        val scopes = application.getScopes()
 
         /**
          * password
